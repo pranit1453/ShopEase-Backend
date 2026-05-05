@@ -1,0 +1,26 @@
+[
+  {
+    "_comment_": "Refer this package to understand from where this payments.json file create",
+    "_comment": "com.java.payment.service.gateway.service.UpiPaymentService"
+  },
+  {
+    "gatewayPaymentId": "payment_1777259551432_PAY_",
+    "gatewayOrderId": "order_1777259513724_c593aee06ffc4f7a9dc1c59cee3a9460",
+    "gatewaySignature": "0HyVDRC+7IjgAypmGFGJUqfNYyThCZ7TOmvYHYWwVU4="
+  },
+  {
+    "gatewayPaymentId": "payment_1777259977077_PAY_",
+    "gatewayOrderId": "order_1777259959621_c636b5323e4e4689ab1dba50b303092d",
+    "gatewaySignature": "CHdfpBkgzKwb4xNGJ1aidKpbEVJUXiLAqJk9L1KgZ4Q="
+  },
+  {
+    "gatewayPaymentId": "payment_1777265333409_PAY_",
+    "gatewayOrderId": "order_1777265235132_8de25ed085e649668c434a4c1d7e93a7",
+    "gatewaySignature": "bqeCm2AcQZ8F3S8zx7n8RRSMfePyVCUxwPbjioINbR4="
+  },
+  {
+    "gatewayPaymentId": "payment_1777279301653_PAY_",
+    "gatewayOrderId": "order_1777279270175_af89cfa94cf1451f95187f586a5da081",
+    "gatewaySignature": "6cjyBuRnUbsezhRG0KOfimFTkh1ORzabS/QK52n0w5k="
+  }
+]

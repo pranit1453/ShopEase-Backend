@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+        </processorPath>
+        <module name="order-service.test" />
+      </profile>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok-mapstruct-binding/0.2.0/2f1cf9ced7b720ba4996c942b816669e63f0fa4f/lombok-mapstruct-binding-0.2.0.jar" />
+        </processorPath>
+        <module name="order-service.main" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="common-library" target="25" />
+      <module name="common-library.main" target="25" />
+      <module name="common-library.test" target="25" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="auth-service" options="-parameters" />
+      <module name="auth-service.main" options="-parameters" />
+      <module name="auth-service.test" options="-parameters" />
+      <module name="gateway-service" options="-parameters" />
+      <module name="gateway-service.main" options="-parameters" />
+      <module name="gateway-service.test" options="-parameters" />
+      <module name="inventory-service" options="-parameters" />
+      <module name="inventory-service.main" options="-parameters" />
+      <module name="inventory-service.test" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
+      <module name="notification-service.main" options="-parameters" />
+      <module name="notification-service.test" options="-parameters" />
+      <module name="order-service" options="-parameters" />
+      <module name="order-service.main" options="-parameters" />
+      <module name="order-service.test" options="-parameters" />
+      <module name="payment-service" options="-parameters" />
+      <module name="payment-service.main" options="-parameters" />
+      <module name="payment-service.test" options="-parameters" />
+      <module name="product-service" options="-parameters" />
+      <module name="product-service.main" options="-parameters" />
+      <module name="product-service.test" options="-parameters" />
+      <module name="service-registry" options="-parameters" />
+      <module name="service-registry.main" options="-parameters" />
+      <module name="service-registry.test" options="-parameters" />
+    </option>
+  </component>
+</project>

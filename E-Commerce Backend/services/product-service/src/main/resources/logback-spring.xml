@@ -1,0 +1,45 @@
+<configuration>
+
+    <!-- Service name -->
+    <property name="SERVICE_NAME" value="${spring.application.name}"/>
+
+    <!-- Log folder -->
+    <property name="LOG_PATH" value="logs"/>
+
+    <!-- Pattern -->
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"/>
+
+    <!-- FILE APPENDER -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>${LOG_PATH}/${SERVICE_NAME}.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${SERVICE_NAME}-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+
+    </appender>
+
+    <!-- CONSOLE -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ROOT LOGGER -->
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <!-- package logging -->
+    <logger name="com.shopease" level="DEBUG"/>
+
+</configuration>
