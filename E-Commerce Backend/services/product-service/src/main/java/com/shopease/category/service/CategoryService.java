@@ -1,9 +1,8 @@
 package com.shopease.category.service;
 
 import com.shopease.category.dto.*;
-import com.shopease.common.category.dto.*;
 import com.shopease.category.enums.CategorySortField;
-import com.shopease.wrapper.PageResponse;
+import com.shopease.common.wrapper.PageResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

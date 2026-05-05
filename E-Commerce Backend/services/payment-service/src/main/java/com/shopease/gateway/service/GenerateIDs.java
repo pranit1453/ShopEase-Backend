@@ -5,10 +5,13 @@ import java.util.UUID;
 public class GenerateIDs {
 
     public static String generateGatewayOrderId(UUID orderId) {
-        return "order_" + System.currentTimeMillis() + "_" + orderId.toString().replace("-", "");
+        return "ORDER_" + System.currentTimeMillis() + "_" + orderId.toString().replace("-", "");
     }
 
     public static String generateGatewayPaymentId(String pay) {
-        return "payment_" + System.currentTimeMillis() + "_" + pay.replace("-", "");
+        return pay
+                + System.currentTimeMillis()
+                + "-"
+                + UUID.randomUUID().toString().substring(0, 8);
     }
 }

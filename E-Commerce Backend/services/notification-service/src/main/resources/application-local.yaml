@@ -1,0 +1,91 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: notification-service
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 5000
+
+  cloud:
+    function:
+      definition: orderCreatedNotification;registrationOtpNotification;passwordChangeOtpNotification;emailChangeOtpNotification;emailChangeSecurityAlert
+
+    stream:
+      default:
+        content-type: application/json
+      bindings:
+
+        orderCreatedNotification-in-0:
+          destination: notify.created
+          group: notification-service
+
+        registrationOtpNotification-in-0:
+          destination: otp.registration.requested
+          group: notification-service
+
+        passwordChangeOtpNotification-in-0:
+          destination: otp.passwordchange.requested
+          group: notification-service
+
+        emailChangeOtpNotification-in-0:
+          destination: otp.emailchange.requested
+          group: notification-service
+
+        emailChangeSecurityAlert-in-0:
+          destination: notification.emailchange.alert
+          group: notification-service
+
+        orderCreatedNotification-out-0:
+          destination: notify.ack
+
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: habittrackerwebsite.app@gmail.com
+    password:
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+  endpoint:
+    shutdown:
+      enabled: true
+
+info:
+  app:
+    name: "notification-service"
+    description: "This is an Notification Service LOCAL SERVER"
+    version: "1.0"

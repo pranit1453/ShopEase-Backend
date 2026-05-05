@@ -3,18 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/E-Commerce Backend.iml" filepath="$PROJECT_DIR$/.idea/E-Commerce Backend.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-service.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-service.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/common-starter.main.iml" filepath="$PROJECT_DIR$/.idea/modules/common-starter.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/inventory-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/inventory-service.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/inventory-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/inventory-service.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/notification-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/notification-service.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/notification-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/notification-service.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/order-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/order-service.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/order-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/order-service.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/payment-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/payment-service.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/payment-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/payment-service.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/product-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/product-service.main.iml" />
     </modules>
   </component>
 </project>
