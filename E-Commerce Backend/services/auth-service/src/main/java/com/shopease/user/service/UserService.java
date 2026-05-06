@@ -1,6 +1,5 @@
 package com.shopease.user.service;
 
-import com.shopease.common.user.dto.*;
 import com.shopease.user.dto.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

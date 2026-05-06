@@ -1,4 +1,4 @@
-package com.shopease.product.exception.custom;
+package com.shopease.product.exception;
 
 import com.shopease.common.exception.BaseException;
 import org.springframework.http.HttpStatus;

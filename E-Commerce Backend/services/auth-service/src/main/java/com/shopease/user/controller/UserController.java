@@ -1,6 +1,5 @@
 package com.shopease.user.controller;
 
-import com.shopease.common.user.dto.*;
 import com.shopease.user.dto.*;
 import com.shopease.user.service.UserService;
 import jakarta.validation.Valid;

@@ -1,7 +1,6 @@
 package com.shopease.authentication.controller;
 
 import com.shopease.authentication.dto.*;
-import com.shopease.common.authentication.dto.*;
 import com.shopease.authentication.service.AuthService;
 import com.shopease.security.service.CookieService;
 import jakarta.servlet.http.HttpServletRequest;

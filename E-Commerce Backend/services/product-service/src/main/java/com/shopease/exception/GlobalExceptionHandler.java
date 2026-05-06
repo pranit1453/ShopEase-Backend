@@ -1,4 +1,4 @@
-package com.shopease.product.exception;
+package com.shopease.exception;
 
 import com.shopease.common.exception.BaseException;
 import com.shopease.common.wrapper.ErrorResponse;

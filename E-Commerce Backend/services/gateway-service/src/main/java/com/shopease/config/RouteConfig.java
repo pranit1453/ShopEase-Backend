@@ -1,12 +1,26 @@
 package com.shopease.config;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
+import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 
 @Configuration
 public class RouteConfig {
+
+    private final RedisRateLimiter redisRateLimiter;
+    private final KeyResolver userKeyResolver;
+
+    public RouteConfig(RedisRateLimiter redisRateLimiter,
+                              KeyResolver userKeyResolver) {
+        this.redisRateLimiter = redisRateLimiter;
+        this.userKeyResolver = userKeyResolver;
+    }
+
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         return builder.routes()
@@ -14,16 +28,25 @@ public class RouteConfig {
                         .path("/auth/**")
                         .filters(f -> f.rewritePath(
                                 "/auth/(?<segment>.*)",
-                                "/${segment}"
-                        ))
+                                "/${segment}")
+                                .requestRateLimiter(config->config
+                                        .setRateLimiter(redisRateLimiter)
+                                        .setKeyResolver(userKeyResolver)
+                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS)
+                                )
+                        )
                         .uri("lb://auth-service")
                 )
                 .route(r -> r
                         .path("/product/**")
                         .filters(f -> f.rewritePath(
                                 "/product/(?<segment>.*)",
-                                "/${segment}"
-                        ))
+                                "/${segment}")
+                                .requestRateLimiter(config->config
+                                        .setRateLimiter(redisRateLimiter)
+                                        .setKeyResolver(userKeyResolver)
+                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS)
+                                ))
                         .uri("lb://product-service")
                 )
                 .route(r -> r

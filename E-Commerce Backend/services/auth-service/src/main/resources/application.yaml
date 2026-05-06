@@ -63,15 +63,15 @@ spring:
       client:
         registration:
           google:
-            client-id:
-            client-secret:
+            client-id: sfbgdhdhhdbteher
+            client-secret: fbdhthbdfhdthdeb
             scope:
               - email
               - profile
               - openid
           github:
-            client-id:
-            client-secret:
+            client-id: afdfdafdafdafadfafadf
+            client-secret: fdfsdvrsrsgrgrgsgsfsg
             scope:
               - user:email
               - read:user

@@ -1,6 +1,8 @@
-package com.shopease.authentication.service;
+package com.shopease.redis.service;
 
 import com.shopease.authentication.enums.OtpType;
+import com.shopease.redis.exception.OTPBlockException;
+import com.shopease.redis.exception.OTPResendException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -48,14 +50,14 @@ public class RedisService {
         //  BLOCK CHECK (10 min)
         Long blockTtl = redisTemplate.getExpire(blockKey);
         if (blockTtl != null && blockTtl > 0) {
-            throw new CustomValidationException(
+            throw new OTPBlockException(
                     "Blocked. Try again after " + toMinutes(blockTtl) + " minute(s)"
             );
         }
         // RESEND CHECK (1 min)
         Long resendTtl = redisTemplate.getExpire(resendKey);
         if (resendTtl != null && resendTtl > 0) {
-            throw new CustomValidationException(
+            throw new OTPResendException(
                     "Please wait " + toMinutes(resendTtl) + " minute(s) before requesting again"
             );
         }
@@ -68,7 +70,7 @@ public class RedisService {
         // block if exceed
         if (count != null && count > MAX_REQUESTS) {
             redisTemplate.opsForValue().set(blockKey, "BLOCKED", Duration.ofSeconds(BLOCK_TTL));
-            throw new CustomValidationException(
+            throw new OTPBlockException(
                     "Too many OTP requests. Blocked for " + (BLOCK_TTL / 60) + " minutes"
             );
         }
@@ -110,7 +112,7 @@ public class RedisService {
                     "BLOCKED",
                     Duration.ofSeconds(BLOCK_TTL)
             );
-            throw new CustomValidationException(
+            throw new OTPBlockException(
                     "Too many wrong attempts. Blocked for " + (BLOCK_TTL / 60) + " minutes"
             );
         }

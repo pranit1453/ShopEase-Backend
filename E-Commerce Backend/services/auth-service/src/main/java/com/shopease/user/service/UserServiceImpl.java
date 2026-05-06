@@ -2,20 +2,17 @@ package com.shopease.user.service;
 
 import com.shopease.authentication.dto.VerificationData;
 import com.shopease.authentication.enums.OtpType;
+import com.shopease.authentication.exception.*;
 import com.shopease.authentication.service.OtpGeneration;
-import com.shopease.authentication.service.RedisService;
-import com.shopease.common.user.dto.*;
-import com.shopease.exception.custom.*;
+import com.shopease.redis.service.RedisService;
 import com.shopease.user.dto.*;
 import com.shopease.user.entity.User;
 import com.shopease.user.mapper.UserMapper;
 import com.shopease.user.repository.UserRepository;
-import com.java.common.starter.exception.custom.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,29 +55,20 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UpdateUserDetailsResponse updateCompleteUserDetails(final UUID id, final UpdateUserDetailsRequest request) {
         User user = findById(id);
-        try {
             user.setUsername(request.username());
             user.setName(request.name());
             user.setGender(request.gender());
             User saved = userRepository.save(user);
             return userMapper.toDto(saved);
-        } catch (DataIntegrityViolationException ex) {
-            throw new CustomDataIntegrityViolationException("Data Integrity Violation");
-        }
     }
 
     @Override
     @Transactional
     public UpdateUserDetailsResponse patchUserDetails(final UUID id, final UpdateUserDetailsRequest request) {
         User user = findById(id);
-        try {
             userMapper.patchUserDetails(request, user);
             User saved = userRepository.save(user);
             return userMapper.toDto(saved);
-        } catch (DataIntegrityViolationException ex) {
-            throw new CustomDataIntegrityViolationException("Data Integrity Violation");
-        }
-
     }
 
     @Override
@@ -89,13 +77,13 @@ public class UserServiceImpl implements UserService {
         UUID userId = getUserId();
         User userData = findById(userId);
         if (!passwordEncoder.matches(request.oldPassword(), userData.getPassword())) {
-            throw new CustomValidationException("Old Password Do Not Match");
+            throw new PasswordValidationException("Old Password Do Not Match");
         }
         if (!request.newPassword().equals(request.confirmPassword())) {
-            throw new CustomValidationException("Passwords do not match");
+            throw new PasswordValidationException("Passwords do not match");
         }
         if (passwordEncoder.matches(request.newPassword(), userData.getPassword())) {
-            throw new CustomValidationException("New Password must be different from old password");
+            throw new PasswordValidationException("New Password must be different from old password");
         }
         userData.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(userData);
@@ -109,7 +97,7 @@ public class UserServiceImpl implements UserService {
         String email = request.email().trim().toLowerCase();
         OtpType type = OtpType.PASSWORD_CHANGE;
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         log.debug("User: {} ", user);
         redisService.validateRequest(user.getUserId(), user.getEmail(), type);
         String otp = OtpGeneration.generateOtp();
@@ -131,11 +119,11 @@ public class UserServiceImpl implements UserService {
         String email = user.getEmail();
         String otp = redisService.getOtp(userId, email, type);
         if (otp == null) {
-            throw new CustomValidationException("OTP expired. Please request a new one.");
+            throw new OTPValidationException("OTP expired. Please request a new one.");
         }
         if (!passwordEncoder.matches(request.otp(), otp)) {
             redisService.handleInvalidOtp(userId, email, type);
-            throw new CustomValidationException("Invalid OTP");
+            throw new OTPValidationException("Invalid OTP");
         }
         redisService.markVerified(userId, email, type);
         // Clear OTP attempts but KEEP verification flag
@@ -151,13 +139,13 @@ public class UserServiceImpl implements UserService {
         String email = userData.getEmail();
         boolean verified = redisService.isVerified(userData.getUserId(), email, type);
         if (!verified) {
-            throw new CustomUnauthorizedException("OTP verification required");
+            throw new OTPValidationException("OTP verification required");
         }
         if (!request.newPassword().equals(request.confirmPassword())) {
-            throw new CustomValidationException("Passwords do not match");
+            throw new PasswordValidationException("Passwords do not match");
         }
         if (passwordEncoder.matches(request.newPassword(), userData.getPassword())) {
-            throw new CustomValidationException("New Password must be different from old password");
+            throw new PasswordValidationException("New Password must be different from old password");
         }
         userData.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(userData);
@@ -176,11 +164,11 @@ public class UserServiceImpl implements UserService {
         String newEmail = request.email().trim().toLowerCase();
 
         if (newEmail.equals(oldEmail)) {
-            throw new CustomValidationException("Email to Change should be different from old email");
+            throw new EmailValidationException("Email to Change should be different from old email");
         }
 
         if (userRepository.existsByEmail(newEmail)) {
-            throw new CustomValidationException("Email already exists");
+            throw new EmailValidationException("Email already exists");
         }
         redisService.validateRequest(userId, newEmail, type);
 
@@ -204,11 +192,11 @@ public class UserServiceImpl implements UserService {
 
         String otp = redisService.getOtp(userId, newEmail, type);
         if (otp == null) {
-            throw new CustomValidationException("OTP expired. Please request a new one.");
+            throw new OTPValidationException("OTP expired. Please request a new one.");
         }
         if (!passwordEncoder.matches(request.otp(), otp)) {
             redisService.handleInvalidOtp(userId, newEmail, type);
-            throw new CustomValidationException("Invalid OTP");
+            throw new OTPValidationException("Invalid OTP");
         }
         redisService.markVerified(userId, newEmail, type);
         // Clear OTP attempts but KEEP verification flag
@@ -231,11 +219,11 @@ public class UserServiceImpl implements UserService {
         }
 
         if (newEmail.equals(userData.getEmail())) {
-            throw new CustomValidationException("New Email should be different from old email");
+            throw new EmailValidationException("New Email should be different from old email");
         }
 
         if (userRepository.existsByEmail(newEmail)) {
-            throw new CustomConflictException("Email already in use");
+            throw new EmailValidationException("Email already in use");
         }
         userData.setEmail(newEmail);
         userRepository.save(userData);
@@ -264,6 +252,6 @@ public class UserServiceImpl implements UserService {
     private User findById(final UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() ->
-                        new CustomResourceNotFoundException("User with ID " + userId + " not found"));
+                        new UserNotFoundException("User with ID " + userId + " not found"));
     }
 }

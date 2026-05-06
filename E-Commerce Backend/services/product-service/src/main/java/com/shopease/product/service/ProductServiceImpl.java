@@ -14,9 +14,9 @@ import com.shopease.common.wrapper.PageResponse;
 import com.shopease.product.dto.*;
 import com.shopease.product.entity.Product;
 import com.shopease.product.enums.ProductSortField;
-import com.shopease.product.exception.custom.DuplicateProductFoundException;
-import com.shopease.product.exception.custom.InsufficientStockException;
-import com.shopease.product.exception.custom.ProductResourceNotFoundException;
+import com.shopease.product.exception.DuplicateProductFoundException;
+import com.shopease.product.exception.InsufficientStockException;
+import com.shopease.product.exception.ProductResourceNotFoundException;
 import com.shopease.product.mapper.ProductMapper;
 import com.shopease.product.repository.ProductRepository;
 import com.shopease.product.specification.ProductSpecification;
@@ -26,6 +26,9 @@ import com.shopease.wishlist.service.WishlistService;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +47,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Validated
 public class ProductServiceImpl implements ProductService {
-
+    private final String CACHE_NAME = "products";
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
@@ -98,6 +101,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @CachePut(cacheNames = CACHE_NAME,key = "#result.productId")
     public CreateProductResponse createProduct(final CreateProductRequest request) {
         log.info("Creating product with categoryId: {}", request.categoryId());
         Category category = categoryRepository.findByCategoryId(request.categoryId())
@@ -123,6 +127,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @CachePut(cacheNames = CACHE_NAME,key = "#productId")
     public UpdateProductResponse patchProduct(UUID productId, UpdateProductRequest request) {
         log.info("Updating product: {}", productId);
         Product product = findByProductId(productId);
@@ -134,6 +139,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = CACHE_NAME,key = "#productId")
     public void deleteProductById(final UUID productId) {
         log.warn("Deleting product with id: {}", productId);
         Product product = findByProductId(productId);
@@ -147,6 +153,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = CACHE_NAME,key = "#productId")
     public ProductResponse fetchProductById(final UUID productId) {
         log.debug("Fetching product by id: {}", productId);
         Product product = findByProductId(productId);

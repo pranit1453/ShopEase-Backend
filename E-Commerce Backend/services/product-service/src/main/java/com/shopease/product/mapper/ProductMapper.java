@@ -1,6 +1,5 @@
 package com.shopease.product.mapper;
 
-import com.shopease.common.product.dto.*;
 import com.shopease.product.dto.*;
 import com.shopease.product.entity.Product;
 import org.mapstruct.*;

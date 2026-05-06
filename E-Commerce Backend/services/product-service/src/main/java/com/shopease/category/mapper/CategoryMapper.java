@@ -1,7 +1,6 @@
 package com.shopease.category.mapper;
 
 import com.shopease.category.dto.*;
-import com.shopease.common.category.dto.*;
 import com.shopease.category.entity.Category;
 import org.mapstruct.*;
 

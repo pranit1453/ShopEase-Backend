@@ -3,7 +3,7 @@ package com.shopease.wishlist.service;
 import com.shopease.product.entity.Product;
 import com.shopease.wishlist.entity.Wishlist;
 import com.shopease.wishlist.entity.WishlistItem;
-import com.shopease.wishlist.exception.custom.WishlistDuplicateResourceFoundException;
+import com.shopease.wishlist.exception.WishlistDuplicateResourceFoundException;
 import com.shopease.wishlist.repository.WishlistItemRepository;
 import com.shopease.wishlist.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;

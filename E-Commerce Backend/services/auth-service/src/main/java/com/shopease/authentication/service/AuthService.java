@@ -1,7 +1,6 @@
 package com.shopease.authentication.service;
 
 import com.shopease.authentication.dto.*;
-import com.shopease.common.authentication.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

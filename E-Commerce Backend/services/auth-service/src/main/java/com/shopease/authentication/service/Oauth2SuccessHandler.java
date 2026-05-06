@@ -2,6 +2,7 @@ package com.shopease.authentication.service;
 
 import com.shopease.authentication.entity.RefreshToken;
 import com.shopease.authentication.enums.Provider;
+import com.shopease.authentication.exception.Oauth2ProviderNotSupported;
 import com.shopease.authentication.repository.RefreshTokenRepository;
 import com.shopease.security.service.CookieService;
 import com.shopease.security.utils.JwtUtil;
@@ -102,7 +103,7 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
                             return userRepository.save(newUser);
                         });
             }
-            default -> throw new CustomResourceNotFoundException("Unsupported Oauth2");
+            default -> throw new Oauth2ProviderNotSupported("Unsupported Oauth2");
         }
         String jti = jwtUtil.generateJti();
         UUID userId = user.getUserId();
