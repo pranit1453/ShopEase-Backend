@@ -26,6 +26,9 @@ import com.shopease.wishlist.service.WishlistService;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -97,6 +100,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CachePut(cacheNames = "products",key = "#result.productId")
     @Transactional
     public CreateProductResponse createProduct(final CreateProductRequest request) {
         log.info("Creating product with categoryId: {}", request.categoryId());
@@ -111,6 +115,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @CachePut(cacheNames = "products",key = "#id")
     public UpdateProductResponse updateProduct(final UUID id, final UpdateProductRequest request) {
         Product product = findByProductId(id);
         product.setName(request.name());
@@ -134,6 +139,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "products",key = "#id")
     public void deleteProductById(final UUID productId) {
         log.warn("Deleting product with id: {}", productId);
         Product product = findByProductId(productId);
@@ -147,6 +153,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "products", key = "{#productId}")
     public ProductResponse fetchProductById(final UUID productId) {
         log.debug("Fetching product by id: {}", productId);
         Product product = findByProductId(productId);

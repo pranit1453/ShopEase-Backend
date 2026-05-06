@@ -3,7 +3,6 @@ package com.shopease.order.service;
 import com.shopease.order.client.InventoryClient;
 import com.shopease.order.client.PaymentClient;
 import com.shopease.order.client.ProductClient;
-import com.shopease.common.order.dto.*;
 import com.shopease.order.dto.*;
 import com.shopease.order.entity.Order;
 import com.shopease.order.entity.OrderItem;
