@@ -1,6 +1,7 @@
 spring:
   application:
     name: gateway-service
+
   cache:
     type: redis
   data:
@@ -35,3 +36,18 @@ info:
 security:
   app:
     issuer: spring
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 2
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        automatic-transition-from-open-to-half-open-enabled: true
+
+    instances:
+      circuitBreakerProduct:
+        base-config: default

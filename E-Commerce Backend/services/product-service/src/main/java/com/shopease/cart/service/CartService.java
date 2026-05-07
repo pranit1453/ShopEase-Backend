@@ -7,6 +7,7 @@ import com.shopease.cart.entity.CartItem;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.cloud.openfeign.FeignClient;
 
 import java.util.UUID;
 

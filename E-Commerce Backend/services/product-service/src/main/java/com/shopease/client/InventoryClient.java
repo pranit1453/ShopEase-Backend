@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
 
-@FeignClient(name = "inventory-service", url = "http://localhost:8082/api/v1/inventory")
+@FeignClient(name = "inventory-service", url = "http://localhost:8082/api/v1/inventory",fallback = InventoryCircuitBreaker.class)
 public interface InventoryClient {
 
     @GetMapping("/{id}/check")

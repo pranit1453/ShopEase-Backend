@@ -56,11 +56,17 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body("Product with id: " + id + " has been deleted");
     }
-
+    int counter = 0;
     @GetMapping("/fetch/{id}")
     public ResponseEntity<ProductResponse> fetchProductById(@PathVariable final @NotNull UUID id) {
+        ProductResponse response = productService.fetchProductById(id);
+        counter++;
+        if(counter<=3){
+            System.out.println("Counter: Retried " + counter + " times");
+            throw new RuntimeException("Retrying");
+        }
         return ResponseEntity.status(HttpStatus.OK)
-                .body(productService.fetchProductById(id));
+                .body(response);
     }
 
     @GetMapping("/fetch/all")
@@ -83,7 +89,8 @@ public class ProductController {
 
     @PostMapping("/add-to-cart")
     public ResponseEntity<ProductToCartResponse> addToCart(@RequestBody final @Valid ProductToCartRequest request) {
-        UUID userId = UUID.fromString("95d6810a-1ca5-4e75-9b9d-a792c8d07395");
+
+        UUID userId = UUID.fromString("7d96acf4-7e60-4b10-bd49-78e9357886f6");
 
         System.out.println(userId);
         return ResponseEntity.status(HttpStatus.OK)
@@ -92,7 +99,7 @@ public class ProductController {
 
     @PostMapping("/add-to-wishlist")
     public ResponseEntity<ProductToWishlistResponse> addToWishlist(@RequestBody final @Valid ProductToWishlistRequest request) {
-        UUID userId = UUID.fromString("3a6bea85-1f4e-4a77-b3d6-13ab65f06589");
+        UUID userId = UUID.fromString("7d96acf4-7e60-4b10-bd49-78e9357886f6");
         System.out.println(userId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.addProductToWishlist(request, userId));

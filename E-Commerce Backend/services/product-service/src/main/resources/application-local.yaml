@@ -15,9 +15,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
-#  flyway:
-#    enabled: true
-#    baseline-on-migrate: true
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
   cache:
     type: redis
   data:
@@ -51,3 +53,19 @@ info:
     name: "product-service"
     description: "This is an Product Service LOCAL SERVER"
     version: "1.0"
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 2
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        automatic-transition-from-open-to-half-open-enabled: true
+
+    instances:
+      product-service:
+        base-config: default
+

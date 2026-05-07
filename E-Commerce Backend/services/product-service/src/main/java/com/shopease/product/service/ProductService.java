@@ -5,11 +5,11 @@ import com.shopease.product.dto.*;
 import com.shopease.product.enums.ProductSortField;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.cloud.openfeign.FeignClient;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
 public interface ProductService {
     Set<CreateProductResponse> createProductInBulk(Set<@Valid CreateProductRequest> request);
 

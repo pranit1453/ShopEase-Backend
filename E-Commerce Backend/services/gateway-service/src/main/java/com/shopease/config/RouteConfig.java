@@ -7,7 +7,10 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+
+import java.time.Duration;
 
 @Configuration
 public class RouteConfig {
@@ -45,8 +48,25 @@ public class RouteConfig {
                                 .requestRateLimiter(config->config
                                         .setRateLimiter(redisRateLimiter)
                                         .setKeyResolver(userKeyResolver)
-                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS)
-                                ))
+                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS))
+                                .retry(retryConfig -> retryConfig
+                                        .setRetries(3)
+                                        .setMethods(HttpMethod.GET)
+                                        .setBackoff(
+                                                Duration.ofMillis(100),
+                                                Duration.ofMillis(800),
+                                                2,
+                                                true
+                                                // true -> multiply by previous delay
+                                                // false -> multiply by initial delay
+                                        ))
+                                .circuitBreaker(circuitBreakerConfig->circuitBreakerConfig
+                                        .setName("circuitBreakerProduct")
+                                        .setFallbackUri("forward:/circuitBreakerProduct/fallback"))
+
+                        )
+                        .metadata("response-timeout", 2000)
+                        .metadata("connect-timeout", 5000)
                         .uri("lb://product-service")
                 )
                 .route(r -> r
