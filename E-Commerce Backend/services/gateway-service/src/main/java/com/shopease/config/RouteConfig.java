@@ -49,9 +49,13 @@ public class RouteConfig {
                                         .setRateLimiter(redisRateLimiter)
                                         .setKeyResolver(userKeyResolver)
                                         .setStatusCode(HttpStatus.TOO_MANY_REQUESTS))
+                                .circuitBreaker(circuitBreakerConfig->circuitBreakerConfig
+                                        .setName("circuitBreakerProduct")
+                                        .setFallbackUri("forward:/circuitBreakerProduct/fallback"))
                                 .retry(retryConfig -> retryConfig
                                         .setRetries(3)
                                         .setMethods(HttpMethod.GET)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
                                         .setBackoff(
                                                 Duration.ofMillis(100),
                                                 Duration.ofMillis(800),
@@ -60,9 +64,6 @@ public class RouteConfig {
                                                 // true -> multiply by previous delay
                                                 // false -> multiply by initial delay
                                         ))
-                                .circuitBreaker(circuitBreakerConfig->circuitBreakerConfig
-                                        .setName("circuitBreakerProduct")
-                                        .setFallbackUri("forward:/circuitBreakerProduct/fallback"))
 
                         )
                         .metadata("response-timeout", 2000)

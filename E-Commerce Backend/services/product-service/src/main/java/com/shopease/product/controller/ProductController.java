@@ -60,10 +60,11 @@ public class ProductController {
     @GetMapping("/fetch/{id}")
     public ResponseEntity<ProductResponse> fetchProductById(@PathVariable final @NotNull UUID id) {
         ProductResponse response = productService.fetchProductById(id);
+        System.out.println("Retrying..................");
         counter++;
         if(counter<=3){
-            System.out.println("Counter: Retried " + counter + " times");
-            throw new RuntimeException("Retrying");
+            System.out.println("Retried " + counter + " times");
+            throw new RuntimeException("Temporary Failure");
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(response);
