@@ -1,6 +1,7 @@
 package com.shopease.product.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.shopease.auditing.entity.AuditEntity;
 import com.shopease.category.entity.Category;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,7 +29,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Product {
+public class Product extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID productId;

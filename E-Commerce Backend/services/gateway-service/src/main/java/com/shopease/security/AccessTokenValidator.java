@@ -19,20 +19,26 @@ public class AccessTokenValidator {
     }
 
     public Claims validateToken(final String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(publicKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(publicKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
 
-        if(!claims.getIssuer().equals(issuer)) {
-            throw new RuntimeException("Invalid Access Token");
-        }
+            if (!issuer.equals(claims.getIssuer())) {
+                throw new RuntimeException("Invalid issuer");
+            }
 
-        if(!"access".equals(String.valueOf(claims.get("token")))) {
-            throw new RuntimeException("Invalid Access Token");
+            if (!"access".equals(String.valueOf(claims.get("token")))) {
+                throw new RuntimeException("Invalid token type");
+            }
+
+            return claims;
+
+        } catch (Exception e) {
+            throw new RuntimeException("JWT validation failed: " + e.getMessage(), e);
         }
-        return claims;
     }
 
 

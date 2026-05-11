@@ -5,6 +5,7 @@ import com.shopease.common.wrapper.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -24,14 +25,26 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                .body(ErrorResponse.builder()
+//                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+//                        .message("Something went wrong")
+//                        .path(request.getRequestURI())
+//                        .timestamp(Instant.now())
+//                        .build());
+//    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleException(AuthorizationDeniedException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ErrorResponse.builder()
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                        .message("Something went wrong")
+                        .status(HttpStatus.FORBIDDEN.value())
+                        .message("Access Denied for this Operation")
                         .path(request.getRequestURI())
                         .timestamp(Instant.now())
                         .build());
     }
+
 }

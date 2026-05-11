@@ -16,6 +16,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -38,28 +40,39 @@ public class AuthenticationTokenFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        try{
+        try {
             String token = TokenUtils.extractToken(exchange);
-            if(token == null){
-                return unauthorized(exchange,"Missing token");
+            log.debug("Token: {}", token);
+            if (token == null) {
+                return unauthorized(exchange, "Authentication token required");
             }
             Claims claims = accessTokenValidator.validateToken(token);
-
+            log.debug("Claims: {}", claims);
             String userId = claims.getSubject();
+            Object roleObj = claims.get("role");
 
+            List<String> roles = roleObj == null
+                    ? List.of()
+                    : ((List<?>) roleObj)
+                      .stream()
+                      .map(Object::toString)
+                      .toList();
             ServerHttpRequest request = exchange.getRequest().mutate()
-                    .header("X-User-Id",sanitize(userId))
-                    .build();
+                    .header("X-User-Id", sanitize(userId))
+                    .header("X-User-Roles",
+                            roles.stream()
+                                    .map(r -> "ROLE_" + r)
+                                    .collect(Collectors.joining(","))).build();
             return chain.filter(exchange.mutate().request(request).build());
-        }catch (Exception e){
-            return unauthorized(exchange,"Invalid or expired token");
+        } catch (Exception e) {
+            return unauthorized(exchange, "Invalid or expired token");
         }
     }
 
-    private Mono<Void> unauthorized(ServerWebExchange exchange,String message) {
+    private Mono<Void> unauthorized(ServerWebExchange exchange, String message) {
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         exchange.getResponse().getHeaders().add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
-        byte[] bytes = ("{\"message\":\""+ message +"\"}").getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = ("{\"message\":\"" + message + "\"}").getBytes(StandardCharsets.UTF_8);
         return exchange.getResponse().writeWith(Mono.just(
                 exchange.getResponse()
                         .bufferFactory()

@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,41 +32,38 @@ public class ProductController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<CreateProductResponse> createProduct(@RequestBody final @Valid CreateProductRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productService.createProduct(request));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<UpdateProductResponse> updateProduct(@PathVariable final @NotNull UUID id,
+    @PutMapping("/update/{productId}")
+    @PreAuthorize("hasRole('ADMIN') and @productSecurityService.isProductOwner(#productId)")
+    public ResponseEntity<UpdateProductResponse> updateProduct(@PathVariable final @NotNull UUID productId,
                                                                @RequestBody @Valid UpdateProductRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(productService.updateProduct(id, request));
+                .body(productService.updateProduct(productId, request));
     }
 
-    @PatchMapping("/patch/{id}")
-    public ResponseEntity<UpdateProductResponse> patchProduct(@PathVariable final @NotNull UUID id,
+    @PatchMapping("/patch/{productId}")
+    public ResponseEntity<UpdateProductResponse> patchProduct(@PathVariable final @NotNull UUID productId,
                                                               @RequestBody @Valid UpdateProductRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(productService.patchProduct(id, request));
+                .body(productService.patchProduct(productId, request));
     }
 
-    @DeleteMapping("/remove/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable final @NotNull UUID id) {
-        productService.deleteProductById(id);
+    @DeleteMapping("/remove/{productId}")
+    public ResponseEntity<String> deleteProduct(@PathVariable final @NotNull UUID productId) {
+        productService.deleteProductById(productId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body("Product with id: " + id + " has been deleted");
+                .body("Product with productId: " + productId + " has been deleted");
     }
-    int counter = 0;
-    @GetMapping("/fetch/{id}")
-    public ResponseEntity<ProductResponse> fetchProductById(@PathVariable final @NotNull UUID id) {
-        ProductResponse response = productService.fetchProductById(id);
-        System.out.println("Retrying..................");
-        counter++;
-        if(counter<=3){
-            System.out.println("Retried " + counter + " times");
-            throw new RuntimeException("Temporary Failure");
-        }
+
+    @GetMapping("/fetch/{productId}")
+    public ResponseEntity<ProductResponse> fetchProductById(@PathVariable final @NotNull UUID productId) {
+        ProductResponse response = productService.fetchProductById(productId);
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(response);
     }
@@ -82,10 +80,10 @@ public class ProductController {
                 .body(productService.fetchProductsInPage(page, size, keyword, sortBy, sortDirection));
     }
 
-    @GetMapping("/{id}/exists")
-    public ResponseEntity<Boolean> productExists(@PathVariable final @NotNull UUID id) {
+    @GetMapping("/{productId}/exists")
+    public ResponseEntity<Boolean> productExists(@PathVariable final @NotNull UUID productId) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(productService.checkForProductExistence(id));
+                .body(productService.checkForProductExistence(productId));
     }
 
     @PostMapping("/add-to-cart")

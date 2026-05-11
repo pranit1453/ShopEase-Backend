@@ -18,7 +18,7 @@ public interface ProductMapper {
     @Mapping(target = "name", source = "name")
     @Mapping(target = "description", source = "description")
     @Mapping(target = "price", source = "price")
-    @Mapping(target = "categoryId",source = "category.categoryId")
+    @Mapping(target = "categoryId", source = "category.categoryId")
     CreateProductResponse mappedToCreateProductResponse(final Product product);
 
 

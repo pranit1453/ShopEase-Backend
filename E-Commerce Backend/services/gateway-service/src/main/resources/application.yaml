@@ -51,3 +51,7 @@ resilience4j:
     instances:
       circuitBreakerProduct:
         base-config: default
+
+logging:
+  level:
+    com.shopease.security: DEBUG
