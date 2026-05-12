@@ -2,6 +2,7 @@ package com.shopease.user.entity;
 
 import com.shopease.auditing.entity.AuditEntity;
 import com.shopease.authentication.enums.Provider;
+import com.shopease.role.entity.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.jspecify.annotations.NullMarked;

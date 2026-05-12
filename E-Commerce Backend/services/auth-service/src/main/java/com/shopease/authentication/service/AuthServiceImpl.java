@@ -7,8 +7,11 @@ import com.shopease.authentication.enums.Provider;
 import com.shopease.authentication.exception.*;
 import com.shopease.authentication.repository.RefreshTokenRepository;
 import com.shopease.redis.service.RedisService;
+import com.shopease.role.repository.RoleRepository;
+import com.shopease.role.exception.RoleNotFoundException;
 import com.shopease.security.service.CookieService;
 import com.shopease.security.utils.JwtUtil;
+import com.shopease.role.entity.Role;
 import com.shopease.user.entity.User;
 import com.shopease.user.repository.UserRepository;
 import io.jsonwebtoken.JwtException;
@@ -52,6 +55,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final RedisService redisService;
     private final StreamBridge streamBridge;
+    private final RoleRepository roleRepository;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -75,13 +79,15 @@ public class AuthServiceImpl implements AuthService {
         redisService.validateRequest(null, email, type);
 
         // check for customer role
+        Role role = roleRepository.findByRoleName("CUSTOMER")
+                .orElseThrow(() -> new RoleNotFoundException("Role CUSTOMER not found"));
         User user = User.builder()
                 .username(request.username())
                 .name(request.name())
                 .email(email)
                 .password(passwordEncoder.encode(request.password()))
                 .gender(request.gender())
-                .roles(Set.of(Roless.USER))
+                .roles(Set.of(role))
                 .provider(Provider.LOCAL)
                 .enabled(false)
                 .build();

@@ -1,9 +1,9 @@
-package com.shopease.admin.service;
+package com.shopease.authentication.service;
 
-import com.shopease.admin.dto.AdminRequest;
-import com.shopease.admin.dto.AdminResponse;
-import com.shopease.admin.dto.RoleRequest;
-import com.shopease.admin.exception.RoleAlreadyAssignedException;
+import com.shopease.authentication.dto.AdminRequest;
+import com.shopease.authentication.dto.AdminResponse;
+import com.shopease.authentication.dto.RoleRequest;
+import com.shopease.authentication.exception.RoleAlreadyAssignedException;
 import com.shopease.authentication.dto.VerificationData;
 import com.shopease.authentication.enums.OtpType;
 import com.shopease.authentication.enums.Provider;
@@ -11,8 +11,10 @@ import com.shopease.authentication.exception.EmailAlreadyExistsException;
 import com.shopease.authentication.exception.PasswordValidationException;
 import com.shopease.authentication.exception.UserNotFoundException;
 import com.shopease.authentication.exception.UsernameAlreadyExists;
-import com.shopease.authentication.service.OtpGeneration;
 import com.shopease.redis.service.RedisService;
+import com.shopease.role.repository.RoleRepository;
+import com.shopease.role.exception.RoleNotFoundException;
+import com.shopease.role.entity.Role;
 import com.shopease.user.entity.User;
 import com.shopease.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +39,7 @@ public class AdminServiceImpl implements AdminService {
     private final RedisService redisService;
     private final PasswordEncoder passwordEncoder;
     private final StreamBridge streamBridge;
-
+    private final RoleRepository roleRepository;
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public AdminResponse onboardNewAdmin(final AdminRequest request) {
@@ -58,13 +60,15 @@ public class AdminServiceImpl implements AdminService {
             throw new PasswordValidationException("Passwords don't match");
         }
         redisService.validateRequest(null, email, type);
+        Role role = roleRepository.findByRoleName("ADMIN")
+                .orElseThrow(() -> new RoleNotFoundException("Role ADMIN not found"));
         User user = User.builder()
                 .username(request.username())
                 .name(request.name())
                 .email(email)
                 .password(passwordEncoder.encode(request.password()))
                 .gender(request.gender())
-                .roles(Set.of(Roless.ADMIN))
+                .roles(Set.of(role))
                 .provider(Provider.LOCAL)
                 .enabled(false)
                 .build();
@@ -101,13 +105,18 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() ->
                         new UserNotFoundException("User with id " + userId + " not found"));
         log.debug("User data with userID: {}", userId);
-        Roless role = Roless.valueOf(request.role().toUpperCase());
-        log.debug("Role data: {}", role);
+        Role role = roleRepository.findByRoleName(request.role())
+                .orElseThrow(() ->
+                        new RoleNotFoundException(
+                                "Role " + request.role() + " not found"));
+        log.debug("Fetched role: {}", role.getRoleName());
         if (user.getRoles().contains(role)) {
-            log.warn("User with role {} already assigned to role {}", role, request.role());
+            log.warn("Role {} already assigned to user {}",
+                    role.getRoleName(),
+                    userId);
             throw new RoleAlreadyAssignedException("User already has Role: " + role);
         }
-        user.setRoles(Set.of(role));
+        user.getRoles().add(role);
         userRepository.save(user);
     }
 }

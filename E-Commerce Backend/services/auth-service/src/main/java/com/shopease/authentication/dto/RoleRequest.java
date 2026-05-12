@@ -1,4 +1,4 @@
-package com.shopease.admin.dto;
+package com.shopease.authentication.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;

@@ -1,5 +1,8 @@
 package com.shopease.authentication.controller;
 
+import com.shopease.authentication.dto.AdminRequest;
+import com.shopease.authentication.dto.AdminResponse;
+import com.shopease.authentication.service.AdminService;
 import com.shopease.authentication.dto.*;
 import com.shopease.authentication.service.AuthService;
 import com.shopease.security.service.CookieService;
@@ -24,13 +27,19 @@ public class AuthController {
 
     private final AuthService authService;
     private final CookieService cookieService;
+    private final AdminService adminService;
 
     @PostMapping("/register")
-    public ResponseEntity<SignupResponse> login(@RequestBody final @Valid SignupRequest request) {
+    public ResponseEntity<SignupResponse> registerUser(@RequestBody final @Valid SignupRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(authService.registerNewUser(request));
     }
+    @PostMapping("/admin")
+    public ResponseEntity<AdminResponse> onboardAdmin(final @RequestBody AdminRequest request) {
 
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(adminService.onboardNewAdmin(request));
+    }
     @PostMapping("/verify")
     public ResponseEntity<String> verifyEmail(@RequestBody final @Valid VerifyRequest request) {
         authService.verifyOtp(request.email(), request.otp());
@@ -52,14 +61,14 @@ public class AuthController {
      * in HttpOnlyCookie
      */
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticateUser(@RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request, HttpServletResponse response) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(authService.authenticateUser(request, response));
     }
 
 
     @PostMapping("/refresh")
-    public ResponseEntity<Boolean> refreshToken(
+    public ResponseEntity<Boolean> refreshAccessToken(
             @RequestBody(required = false) RefreshTokenRequest body,
             HttpServletResponse response,
             HttpServletRequest request
@@ -72,7 +81,7 @@ public class AuthController {
 
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<Void> logoutUser(HttpServletRequest request, HttpServletResponse response) {
         authService.readRefreshTokenFromRequest(null, request).ifPresent(authService::revokedRefreshToken);
         cookieService.clearRefreshTokenCookie(response);
         cookieService.clearAccessTokenCookie(response);

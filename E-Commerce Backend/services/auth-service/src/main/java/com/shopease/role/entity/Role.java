@@ -1,5 +1,6 @@
-package com.shopease.user.entity;
+package com.shopease.role.entity;
 
+import com.shopease.permission.Permission;
 import jakarta.persistence.*;
 import lombok.*;
 

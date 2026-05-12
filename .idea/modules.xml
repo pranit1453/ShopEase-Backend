@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/ShopEase-Backend.iml" filepath="$PROJECT_DIR$/.idea/ShopEase-Backend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common-security.main.iml" filepath="$PROJECT_DIR$/.idea/modules/common-security.main.iml" />
     </modules>
   </component>
 </project>
