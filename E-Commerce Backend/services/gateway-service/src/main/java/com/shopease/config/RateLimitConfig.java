@@ -6,6 +6,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Mono;
 
+/**
+ * This configuration is for the Rate limiting in request using spring cloud.
+ * RedisRateLimiter class
+ */
 @Configuration
 public class RateLimitConfig {
 

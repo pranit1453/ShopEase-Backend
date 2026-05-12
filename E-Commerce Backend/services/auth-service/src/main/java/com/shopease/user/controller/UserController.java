@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,19 +24,21 @@ public class UserController {
     public final UserService userService;
 
     @PutMapping("/update/{userId}")
-    // @PreAuthorize("(hasRole('USER') and @userSecurityService.isUserAuthorized(#userId))")
+    @PreAuthorize("(hasRole('USER') and @userSecurityService.isUserAuthorized(#userId))")
     public ResponseEntity<UpdateUserDetailsResponse> updateUserDetails(@PathVariable final @NotNull UUID userId, @RequestBody final @Valid UpdateUserDetailsRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userService.updateCompleteUserDetails(userId, request));
     }
 
     @PostMapping("/patch/{userId}")
+    @PreAuthorize(("(hasRole('USER) and @userSecurityService.isUserAuthorized(#userId)"))
     public ResponseEntity<UpdateUserDetailsResponse> patchUserDetails(@PathVariable final @NotNull UUID userId, @RequestBody final @Valid UpdateUserDetailsRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userService.patchUserDetails(userId, request));
     }
 
     @PostMapping("/update/password")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> updatePassword(@RequestBody @Valid final UpdatePasswordRequest request) {
         userService.confirmPasswordChange(request);
         return ResponseEntity.status(HttpStatus.OK)
@@ -43,6 +46,7 @@ public class UserController {
     }
 
     @PostMapping("/send-otp")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> changePasswordUsingOtp(@RequestBody final @Valid EmailRequest request) {
         log.debug("Change password using OTP");
         userService.requestPasswordChangeOtp(request);
@@ -51,6 +55,7 @@ public class UserController {
     }
 
     @PostMapping("/otp/verify")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> verifyOtpForPassword(@RequestBody final @Valid VerifyPasswordRequest request) {
         userService.verifyPasswordChangeOtp(request);
         return ResponseEntity.status(HttpStatus.OK)
@@ -58,6 +63,7 @@ public class UserController {
     }
 
     @PostMapping("/confirm/password")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> updatePassword(@RequestBody final @Valid PasswordRequest request) {
         userService.confirmPasswordChange(request);
         return ResponseEntity.status(HttpStatus.OK)
@@ -65,6 +71,7 @@ public class UserController {
     }
 
     @PostMapping("/update/email")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> updateEmail(@RequestBody final @Valid EmailRequest request) {
         userService.requestEmailChangeOtp(request);
         return ResponseEntity.status(HttpStatus.OK)
@@ -72,16 +79,11 @@ public class UserController {
     }
 
     @PostMapping("/email/verify")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> verifyOtpForEmail(@RequestBody final @Valid NewEmailRequest request) {
         userService.verifyEmailChangeOtp(request);
         return ResponseEntity.status(HttpStatus.OK)
                 .body("OTP has been verified and Email Updated successfully");
     }
-
-//    @PostMapping("/confirm")
-//    public ResponseEntity<String> confirmEmail(@RequestBody final @Valid EmailRequest request) {
-//        userService.confirmEmailChange(request);
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body("Email has been updated successfully");
-//    }
+    
 }

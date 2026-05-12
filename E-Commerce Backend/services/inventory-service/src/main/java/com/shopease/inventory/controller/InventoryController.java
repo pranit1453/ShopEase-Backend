@@ -1,10 +1,9 @@
 package com.shopease.inventory.controller;
 
-import com.shopease.common.inventory.dto.*;
+import com.shopease.common.wrapper.PageResponse;
 import com.shopease.inventory.dto.*;
 import com.shopease.inventory.enums.InventorySortField;
 import com.shopease.inventory.service.InventoryService;
-import com.shopease.common.wrapper.PageResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

@@ -1,6 +1,5 @@
 package com.shopease.security.utils;
 
-import com.shopease.user.entity.Role;
 import com.shopease.user.entity.User;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.Cookie;
@@ -18,6 +17,7 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -53,6 +53,7 @@ public class JwtUtil {
         RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
+
     // In Production Keep Only One Header Or Cookie
     public String resolveAccessToken(HttpServletRequest request) {
         String headerToken = getAccessTokenFromHeader(request);
@@ -88,12 +89,17 @@ public class JwtUtil {
         UUID userId = user.getUserId();
         Instant now = Instant.now();
         Instant expiry = now.plusSeconds(accessTokenExpiration);
-        List<String> roles = user.getRoles() == null ? List.of()
+        Set<String> roles = user.getRoles() == null ? Set.of()
                 : user.getRoles()
                   .stream()
-                  .map(Role::name)
-                  .toList();
-
+                  .map(Roless::name)
+                  .collect(Collectors.toSet());
+//        Set<String> permission = user.getRoles()
+//                .stream()
+//                .flatMap(role ->
+//                        role.getPermissions().stream())
+//                .map(Permission::name)
+//                .collect(Collectors.toSet());
         return Jwts.builder()
                 .id(id(user.getUserId()))
                 .subject(userId.toString())
@@ -102,6 +108,7 @@ public class JwtUtil {
                 .expiration(Date.from(expiry))
                 .claims(Map.of(
                         "role", roles,
+                        "permission", permission,
                         "token", "access"
                 ))
                 .signWith(this.privateKey)

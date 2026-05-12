@@ -6,7 +6,6 @@ import com.shopease.authentication.exception.Oauth2ProviderNotSupported;
 import com.shopease.authentication.repository.RefreshTokenRepository;
 import com.shopease.security.service.CookieService;
 import com.shopease.security.utils.JwtUtil;
-import com.shopease.user.entity.Role;
 import com.shopease.user.entity.User;
 import com.shopease.user.repository.UserRepository;
 import jakarta.servlet.ServletException;
@@ -69,7 +68,7 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
                                     .name(name)
                                     .image(picture)
                                     .password(null)
-                                    .roles(Set.of(Role.USER))
+                                    .roles(Set.of(Roless.USER))
                                     .provider(Provider.GOOGLE)
                                     .enabled(true)
                                     .build();
@@ -96,7 +95,7 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
                                     .username(name)
                                     .name(name)
                                     .image(picture)
-                                    .roles(Set.of(Role.USER))
+                                    .roles(Set.of(Roless.USER))
                                     .provider(Provider.GITHUB)
                                     .enabled(true)
                                     .build();

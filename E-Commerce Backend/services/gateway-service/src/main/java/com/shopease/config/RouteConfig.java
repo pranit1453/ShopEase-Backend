@@ -1,6 +1,5 @@
 package com.shopease.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -12,6 +11,10 @@ import org.springframework.http.HttpStatus;
 
 import java.time.Duration;
 
+/**
+ * This configuration is for the customize routing with api gateway with filter, circuit breaker, load balancer
+ * Spring Cloud LoadBalancer ---> discover service instances dynamically
+ */
 @Configuration
 public class RouteConfig {
 
@@ -19,7 +22,7 @@ public class RouteConfig {
     private final KeyResolver userKeyResolver;
 
     public RouteConfig(RedisRateLimiter redisRateLimiter,
-                              KeyResolver userKeyResolver) {
+                       KeyResolver userKeyResolver) {
         this.redisRateLimiter = redisRateLimiter;
         this.userKeyResolver = userKeyResolver;
     }
@@ -30,26 +33,45 @@ public class RouteConfig {
                 .route(r -> r
                         .path("/auth/**")
                         .filters(f -> f.rewritePath(
-                                "/auth/(?<segment>.*)",
-                                "/${segment}")
-                                .requestRateLimiter(config->config
+                                        "/auth/(?<segment>.*)",
+                                        "/${segment}")
+                                .requestRateLimiter(config -> config
                                         .setRateLimiter(redisRateLimiter)
                                         .setKeyResolver(userKeyResolver)
-                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS)
-                                )
+                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS))
+                                .requestRateLimiter(config -> config
+                                        .setRateLimiter(redisRateLimiter)
+                                        .setKeyResolver(userKeyResolver)
+                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS))
+                                .circuitBreaker(circuitBreakerConfig -> circuitBreakerConfig
+                                        .setName("circuitBreakerAuth")
+                                        .setFallbackUri("forward:/circuitBreakerAuth/fallback"))
+                                .retry(retryConfig -> retryConfig
+                                        .setRetries(3)
+                                        .setMethods(HttpMethod.GET)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .setBackoff(
+                                                Duration.ofMillis(100), // first backoff
+                                                Duration.ofMillis(800), // max backoff
+                                                2,
+                                                true
+                                        ))
+
                         )
+                        .metadata("response-timeout", 2000)
+                        .metadata("connect-timeout", 5000)
                         .uri("lb://auth-service")
                 )
                 .route(r -> r
                         .path("/product/**")
                         .filters(f -> f.rewritePath(
-                                "/product/(?<segment>.*)",
-                                "/${segment}")
-                                .requestRateLimiter(config->config
+                                        "/product/(?<segment>.*)",
+                                        "/${segment}")
+                                .requestRateLimiter(config -> config
                                         .setRateLimiter(redisRateLimiter)
                                         .setKeyResolver(userKeyResolver)
                                         .setStatusCode(HttpStatus.TOO_MANY_REQUESTS))
-                                .circuitBreaker(circuitBreakerConfig->circuitBreakerConfig
+                                .circuitBreaker(circuitBreakerConfig -> circuitBreakerConfig
                                         .setName("circuitBreakerProduct")
                                         .setFallbackUri("forward:/circuitBreakerProduct/fallback"))
                                 .retry(retryConfig -> retryConfig
@@ -61,8 +83,6 @@ public class RouteConfig {
                                                 Duration.ofMillis(800),
                                                 2,
                                                 true
-                                                // true -> multiply by previous delay
-                                                // false -> multiply by initial delay
                                         ))
 
                         )
@@ -104,8 +124,9 @@ public class RouteConfig {
                 )
                 .build();
     }
-    
+
 }
 /*
     Customized Service Routing
+    debugging
 */

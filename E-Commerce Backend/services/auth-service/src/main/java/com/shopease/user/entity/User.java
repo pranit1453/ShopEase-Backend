@@ -1,5 +1,6 @@
 package com.shopease.user.entity;
 
+import com.shopease.auditing.entity.AuditEntity;
 import com.shopease.authentication.enums.Provider;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,6 +14,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity
 @Table(name = "users",
@@ -31,7 +34,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class User implements UserDetails {
+public class User extends AuditEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID userId;
@@ -48,16 +51,15 @@ public class User implements UserDetails {
     private String image;
     private String gender;
     private String oauthId;
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    @CollectionTable(
-            name = "user_roles", schema = "user_schema",
-            joinColumns = @JoinColumn(name = "user_id")
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_roles",
+            schema = "user_schema",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    @Column(name = "role")
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
-
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private Provider provider = Provider.LOCAL;
@@ -83,9 +85,19 @@ public class User implements UserDetails {
 
     @Override
     public @NullMarked Collection<? extends GrantedAuthority> getAuthorities() {
+
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
-                .toList();
+                //flatMap() is used because each role produces multiple authorities.
+                .flatMap(role -> Stream.concat(
+                        // Role
+                        Stream.of(new SimpleGrantedAuthority("ROLE_" + role.getRoleName())),
+                        // Permission from role
+                        role.getPermissions()
+                                .stream()
+                                .map(permission ->
+                                        new SimpleGrantedAuthority(permission.getPermissionCode()))
+                ))
+                .collect(Collectors.toSet());
     }
 
     @Override

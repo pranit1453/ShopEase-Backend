@@ -118,3 +118,4 @@ public class ProductController {
                 .body(productService.createAndBuyOrder(productId, quantity));
     }
 }
+// RBAC on granlar

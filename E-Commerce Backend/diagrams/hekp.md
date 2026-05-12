@@ -1,0 +1,8 @@
+# Hierarchy
+
+TRACE
+DEBUG
+INFO
+WARN
+ERROR
+OFF

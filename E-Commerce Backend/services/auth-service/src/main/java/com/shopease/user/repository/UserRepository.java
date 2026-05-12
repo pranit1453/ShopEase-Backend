@@ -1,6 +1,7 @@
 package com.shopease.user.repository;
 
 import com.shopease.user.entity.User;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +18,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByUserId(UUID userId);
 
     Optional<User> findByEmail(String email);
+
+    boolean existsByUsername(@NotBlank(message = "Username is required!!!") String username);
+    
+
 }

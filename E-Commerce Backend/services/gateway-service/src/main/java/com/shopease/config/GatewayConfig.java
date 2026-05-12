@@ -6,6 +6,9 @@ import org.springframework.cloud.gateway.discovery.DiscoveryLocatorProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * This configuration is for routing the services url to the api gateway.
+ */
 @Configuration
 public class GatewayConfig {
     @Bean
