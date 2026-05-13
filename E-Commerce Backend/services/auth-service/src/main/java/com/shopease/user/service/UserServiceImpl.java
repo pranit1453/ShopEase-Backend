@@ -4,15 +4,22 @@ import com.shopease.authentication.dto.VerificationData;
 import com.shopease.authentication.enums.OtpType;
 import com.shopease.authentication.exception.*;
 import com.shopease.authentication.service.OtpGeneration;
+import com.shopease.common.wrapper.PageResponse;
 import com.shopease.redis.service.RedisService;
 import com.shopease.user.dto.*;
 import com.shopease.user.entity.User;
 import com.shopease.user.mapper.UserMapper;
 import com.shopease.user.repository.UserRepository;
+import com.shopease.user.specification.UserSpecification;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +29,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -276,5 +284,30 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() ->
                         new UserNotFoundException("User with ID " + userId + " not found"));
+    }
+
+    @Override
+    public PageResponse<UserResponse> getAllUsersWithRolesAndPermission(int page, int size, String keyword, String sortBy, String sortDirection) {
+        Sort sort = sortDirection.equalsIgnoreCase("ASC")
+                ? Sort.by(Sort.Direction.ASC, sortBy)
+                : Sort.by(Sort.Direction.DESC, sortBy);
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Specification<User> spec = UserSpecification.searchKeyword(keyword);
+        Page<User> pages = userRepository.findAll(spec, pageable);
+        List<UserResponse> content = pages.getContent()
+                .stream()
+                .map(userMapper::toResponse)
+                .toList();
+
+        return PageResponse.<UserResponse>builder()
+                .content(content)
+                .page(pages.getNumber())
+                .size(pages.getSize())
+                .totalElements(pages.getTotalElements())
+                .totalPages(pages.getTotalPages())
+                .last(pages.isLast())
+                .build();
+
     }
 }

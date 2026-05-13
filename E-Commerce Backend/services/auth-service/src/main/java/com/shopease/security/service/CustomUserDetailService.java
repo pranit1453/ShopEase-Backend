@@ -1,5 +1,6 @@
 package com.shopease.security.service;
 
+import com.shopease.authentication.exception.UserNotFoundException;
 import com.shopease.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
@@ -25,6 +26,6 @@ public class CustomUserDetailService implements UserDetailsService {
 
     public UserDetails loadUserByUserId(UUID userId) throws UsernameNotFoundException {
         return userRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("User with userId " + userId + " not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with userId " + userId + " not found"));
     }
 }

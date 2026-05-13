@@ -4,6 +4,8 @@ import com.shopease.authentication.entity.RefreshToken;
 import com.shopease.authentication.enums.Provider;
 import com.shopease.authentication.exception.Oauth2ProviderNotSupported;
 import com.shopease.authentication.repository.RefreshTokenRepository;
+import com.shopease.role.entity.Role;
+import com.shopease.role.repository.RoleRepository;
 import com.shopease.security.service.CookieService;
 import com.shopease.security.utils.JwtUtil;
 import com.shopease.user.entity.User;
@@ -37,6 +39,7 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
     private final CookieService cookieService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final RefreshTokenService refreshTokenService;
+    private final RoleRepository roleRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -52,6 +55,8 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
             log.info("registrationId: {}", registrationId);
         }
         User user;
+        Role defaultRole = roleRepository.findByRoleName("USER")
+                .orElseThrow(() -> new RuntimeException("Default role USER not found"));
         switch (registrationId) {
             case "google" -> {
                 String googleId = oAuth2User.getAttributes().getOrDefault("sub", "").toString();
@@ -68,7 +73,7 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
                                     .name(name)
                                     .image(picture)
                                     .password(null)
-                                    .roles(Set.of(Roless.USER))
+                                    .roles(Set.of(defaultRole))
                                     .provider(Provider.GOOGLE)
                                     .enabled(true)
                                     .build();
@@ -95,7 +100,7 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
                                     .username(name)
                                     .name(name)
                                     .image(picture)
-                                    .roles(Set.of(Roless.USER))
+                                    .roles(Set.of(defaultRole))
                                     .provider(Provider.GITHUB)
                                     .enabled(true)
                                     .build();

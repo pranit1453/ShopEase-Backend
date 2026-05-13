@@ -2,12 +2,13 @@ package com.shopease.user.mapper;
 
 import com.shopease.user.dto.UpdateUserDetailsRequest;
 import com.shopease.user.dto.UpdateUserDetailsResponse;
+import com.shopease.user.dto.UserResponse;
 import com.shopease.user.entity.User;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    
+
 
     @BeanMapping(ignoreByDefault = true)
     @Mappings({
@@ -28,6 +29,13 @@ public interface UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "authorities", ignore = true)
-    @Mapping(target = "image",ignore = true)
+    @Mapping(target = "image", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
     void patchUserDetails(UpdateUserDetailsRequest request, @MappingTarget User user);
+
+
+    @Mapping(target = "roleWithPermission", source = "roles")
+    UserResponse toResponse(User user);
+
 }

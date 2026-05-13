@@ -19,8 +19,8 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migrations
-  #    baseline-on-migration: true
-  #    baseline-version: 1
+    baseline-on-migration: true
+    baseline-version: 1
   rabbitmq:
     host: localhost
     port: 5672

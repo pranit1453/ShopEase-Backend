@@ -6,6 +6,7 @@ import lombok.Builder;
 @Builder
 public record RoleRequest(
         @NotBlank(message = "Role to assigned is mandatory")
-        String role
+        String role,
+        String description
 ) {
 }

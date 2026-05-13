@@ -1,5 +1,6 @@
 package com.shopease.user.service;
 
+import com.shopease.common.wrapper.PageResponse;
 import com.shopease.user.dto.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -24,4 +25,5 @@ public interface UserService {
     void verifyEmailChangeOtp(@Valid NewEmailRequest request);
 
 
+    PageResponse<UserResponse> getAllUsersWithRolesAndPermission(int page, int size, String keyword, String sortBy, String sortDirection);
 }

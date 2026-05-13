@@ -1,5 +1,6 @@
 package com.shopease.user.controller;
 
+import com.shopease.common.wrapper.PageResponse;
 import com.shopease.user.dto.*;
 import com.shopease.user.service.UserService;
 import jakarta.validation.Valid;
@@ -85,5 +86,16 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body("OTP has been verified and Email Updated successfully");
     }
-    
+
+    @GetMapping("/all")
+    public ResponseEntity<PageResponse<UserResponse>> fetchAllUserData(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "5") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false, defaultValue = "username") String sortBy,
+            @RequestParam(required = false, defaultValue = "ASC") String sortDirection
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.getAllUsersWithRolesAndPermission(page, size, keyword, sortBy, sortDirection));
+    }
 }

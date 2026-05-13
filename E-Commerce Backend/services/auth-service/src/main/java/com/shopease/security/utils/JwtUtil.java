@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -89,17 +90,21 @@ public class JwtUtil {
         UUID userId = user.getUserId();
         Instant now = Instant.now();
         Instant expiry = now.plusSeconds(accessTokenExpiration);
-        Set<String> roles = user.getRoles() == null ? Set.of()
-                : user.getRoles()
-                  .stream()
-                  .map(Roless::name)
-                  .collect(Collectors.toSet());
-//        Set<String> permission = user.getRoles()
-//                .stream()
-//                .flatMap(role ->
-//                        role.getPermissions().stream())
-//                .map(Permission::name)
-//                .collect(Collectors.toSet());
+        Set<String> roles = user.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(Objects::nonNull)
+                .filter(auth -> auth.startsWith("ROLE_"))
+                .map(role -> role.replace("ROLE_", ""))
+                .collect(Collectors.toSet());
+
+        Set<String> permissions = user.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(Objects::nonNull)
+                .filter(auth -> !auth.startsWith("ROLE_"))
+                .collect(Collectors.toSet());
+
         return Jwts.builder()
                 .id(id(user.getUserId()))
                 .subject(userId.toString())
@@ -107,8 +112,8 @@ public class JwtUtil {
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiry))
                 .claims(Map.of(
-                        "role", roles,
-                        "permission", permission,
+                        "roles", roles,
+                        "permissions", permissions,
                         "token", "access"
                 ))
                 .signWith(this.privateKey)
@@ -201,10 +206,4 @@ public class JwtUtil {
         int random = 1000 + RANDOM.nextInt(9000);
         return userPart + timestamp + random;
     }
-
-//    private SecretKey key() {
-//        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
-//    }
 }
-
-// hld and lld , 2 user flows, documentation

@@ -46,7 +46,7 @@ public class RouteConfig {
                                 .circuitBreaker(circuitBreakerConfig -> circuitBreakerConfig
                                         .setName("circuitBreakerAuth")
                                         .setFallbackUri("forward:/circuitBreakerAuth/fallback"))
-                                .retry(retryConfig -> retryConfig
+                                .retry(config -> config
                                         .setRetries(3)
                                         .setMethods(HttpMethod.GET)
                                         .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -74,7 +74,7 @@ public class RouteConfig {
                                 .circuitBreaker(circuitBreakerConfig -> circuitBreakerConfig
                                         .setName("circuitBreakerProduct")
                                         .setFallbackUri("forward:/circuitBreakerProduct/fallback"))
-                                .retry(retryConfig -> retryConfig
+                                .retry(config -> config
                                         .setRetries(3)
                                         .setMethods(HttpMethod.GET)
                                         .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -84,7 +84,6 @@ public class RouteConfig {
                                                 2,
                                                 true
                                         ))
-
                         )
                         .metadata("response-timeout", 2000)
                         .metadata("connect-timeout", 5000)
@@ -93,40 +92,112 @@ public class RouteConfig {
                 .route(r -> r
                         .path("/inventory/**")
                         .filters(f -> f.rewritePath(
-                                "/inventory/(?<segment>.*)",
-                                "/${segment}"
-                        ))
+                                        "/inventory/(?<segment>.*)",
+                                        "/${segment}")
+                                .requestRateLimiter(config -> config
+                                        .setRateLimiter(redisRateLimiter)
+                                        .setKeyResolver(userKeyResolver)
+                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS))
+                                .circuitBreaker(config -> config
+                                        .setName("circuitBreakerInventory")
+                                        .setFallbackUri("forward:/circuitBreakerInventory/fallback"))
+                                .retry(config -> config
+                                        .setRetries(3)
+                                        .setMethods(HttpMethod.GET)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .setBackoff(
+                                                Duration.ofMillis(100),
+                                                Duration.ofMillis(800),
+                                                2,
+                                                true
+                                        ))
+                        )
+                        .metadata("response-timeout", 2000)
+                        .metadata("connect-timeout", 5000)
                         .uri("lb://inventory-service")
                 )
                 .route(r -> r
                         .path("/order/**")
                         .filters(f -> f.rewritePath(
-                                "/order/(?<segment>.*)",
-                                "/${segment}"
-                        ))
+                                        "/order/(?<segment>.*)",
+                                        "/${segment}")
+                                .requestRateLimiter(config -> config
+                                        .setRateLimiter(redisRateLimiter)
+                                        .setKeyResolver(userKeyResolver)
+                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS))
+                                .circuitBreaker(config -> config
+                                        .setName("circuitBreakerOrder")
+                                        .setFallbackUri("forward:/circuitBreakerOrder/fallback"))
+                                .retry(config -> config
+                                        .setRetries(3)
+                                        .setMethods(HttpMethod.GET)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .setBackoff(
+                                                Duration.ofMillis(100),
+                                                Duration.ofMillis(800),
+                                                2,
+                                                true
+                                        ))
+                        )
+                        .metadata("response-timeout", 2000)
+                        .metadata("connect-timeout", 5000)
                         .uri("lb://order-service")
                 )
                 .route(r -> r
                         .path("/notification/**")
                         .filters(f -> f.rewritePath(
-                                "/notification/(?<segment>.*)",
-                                "/${segment}"
-                        ))
+                                        "/notification/(?<segment>.*)",
+                                        "/${segment}")
+                                .requestRateLimiter(config -> config
+                                        .setRateLimiter(redisRateLimiter)
+                                        .setKeyResolver(userKeyResolver)
+                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS))
+                                .circuitBreaker(config -> config
+                                        .setName("circuitBreakerNotification")
+                                        .setFallbackUri("forward:/circuitBreakerNotification/fallback"))
+                                .retry(config -> config
+                                        .setRetries(3)
+                                        .setMethods(HttpMethod.GET)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .setBackoff(
+                                                Duration.ofMillis(100),
+                                                Duration.ofMillis(800),
+                                                2,
+                                                true
+                                        ))
+                        )
+                        .metadata("response-timeout", 2000)
+                        .metadata("connect-timeout", 5000)
                         .uri("lb://notification-service")
                 )
                 .route(r -> r
                         .path("/payment/**")
                         .filters(f -> f.rewritePath(
-                                "/payment/(?<segment>.*)",
-                                "/${segment}"
-                        ))
+                                        "/payment/(?<segment>.*)",
+                                        "/${segment}")
+                                .requestRateLimiter(config -> config
+                                        .setRateLimiter(redisRateLimiter)
+                                        .setKeyResolver(userKeyResolver)
+                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS))
+                                .circuitBreaker(config -> config
+                                        .setName("circuitBreakerPayment")
+                                        .setFallbackUri("forward:/circuitBreakerPayment/fallback"))
+                                .retry(config -> config
+                                        .setRetries(3)
+                                        .setMethods(HttpMethod.GET)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .setBackoff(
+                                                Duration.ofMillis(100),
+                                                Duration.ofMillis(800),
+                                                2,
+                                                true
+                                        ))
+                        )
+                        .metadata("response-timeout", 2000)
+                        .metadata("connect-timeout", 5000)
                         .uri("lb://payment-service")
                 )
                 .build();
     }
 
 }
-/*
-    Customized Service Routing
-    debugging
-*/
