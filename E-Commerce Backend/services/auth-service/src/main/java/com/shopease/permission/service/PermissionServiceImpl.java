@@ -9,6 +9,7 @@ import com.shopease.permission.exception.PermissionNotFoundException;
 import com.shopease.permission.mapper.PermissionMapper;
 import com.shopease.permission.repository.PermissionRepository;
 import com.shopease.permission.specification.PermissionSpecification;
+import com.shopease.role.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +29,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     private final PermissionRepository permissionRepository;
     private final PermissionMapper permissionMapper;
+    private final RoleRepository roleRepository;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)

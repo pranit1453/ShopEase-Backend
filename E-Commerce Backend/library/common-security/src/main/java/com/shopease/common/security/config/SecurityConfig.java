@@ -1,24 +1,27 @@
 package com.shopease.common.security.config;
 
-import com.shopease.common.security.filter.InternalServiceAuthenticationFilter;
+import com.shopease.common.security.endpoints.PublicEndpointProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Slf4j
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
 
     @Bean
-    SecurityFilterChain filterChain(final HttpSecurity http, InternalServiceAuthenticationFilter filter)
+    SecurityFilterChain filterChain(final HttpSecurity http,
+                                    final PublicEndpointProvider publicEndpointProvider)
             throws Exception {
-        System.out.println("In Common Security.");
+        log.info("Common Security Configuration");
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
@@ -30,13 +33,12 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(
-                                "/actuator/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                publicEndpointProvider.publicEndpoints()
                         ).permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(filter,
-                        UsernamePasswordAuthenticationFilter.class);
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(Customizer.withDefaults()))
+        ;
         return http.build();
     }
 }

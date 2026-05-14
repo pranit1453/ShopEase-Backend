@@ -24,6 +24,7 @@ ext {
 
 dependencies {
     implementation 'com.java:common-starter:1.0.0'
+    implementation 'com.security:common-security:1.0.0'
     implementation 'org.springframework.cloud:spring-cloud-starter-stream-rabbit'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'

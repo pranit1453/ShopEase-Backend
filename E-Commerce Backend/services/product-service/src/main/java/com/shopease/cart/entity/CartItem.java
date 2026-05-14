@@ -1,6 +1,7 @@
 package com.shopease.cart.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.shopease.auditing.entity.AuditEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,7 +25,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CartItem {
+public class CartItem extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID cartItemId;

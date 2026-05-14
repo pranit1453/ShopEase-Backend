@@ -6,6 +6,7 @@ import com.shopease.permission.dto.PermissionResponse;
 import com.shopease.permission.service.PermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -18,12 +19,14 @@ public class PermissionController {
     private final PermissionService permissionService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('PERMISSION_CREATE')")
     public ResponseEntity<String> createPermissions(@RequestBody PermissionRequest request) {
         permissionService.createPermission(request);
         return ResponseEntity.ok().body("Permission has been created");
     }
 
     @PutMapping("/update/{permissionId}")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('PERMISSION_WRITE')")
     public ResponseEntity<String> updatePermission(
             @PathVariable UUID permissionId,
             @RequestBody PermissionRequest request
@@ -33,6 +36,7 @@ public class PermissionController {
     }
 
     @DeleteMapping("/delete/{permissionId}")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('PERMISSION_DELETE')")
     public ResponseEntity<String> deletePermission(
             @PathVariable UUID permissionId
     ) {
@@ -41,6 +45,7 @@ public class PermissionController {
     }
 
     @GetMapping("/{permissionId}")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('PERMISSION_READ')")
     public ResponseEntity<PermissionResponse> getPermission(
             @PathVariable UUID permissionId
     ) {
@@ -50,6 +55,7 @@ public class PermissionController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('PERMISSION_READ')")
     public ResponseEntity<PageResponse<PermissionResponse>> getAllPermissions(
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "5") int size,
@@ -61,5 +67,4 @@ public class PermissionController {
                 permissionService.getAllPermissions(page, size, keyword, sortBy, sortDirection)
         );
     }
-
 }

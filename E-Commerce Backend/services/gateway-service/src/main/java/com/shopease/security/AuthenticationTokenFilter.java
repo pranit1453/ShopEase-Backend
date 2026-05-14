@@ -1,5 +1,6 @@
 package com.shopease.security;
 
+import com.shopease.utils.CorrelationIdGenerator;
 import com.shopease.utils.TokenUtils;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +17,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -36,33 +35,39 @@ public class AuthenticationTokenFilter implements GlobalFilter, Ordered {
                              GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
         // allow auth endpoints
-        if (pathMatcher.match("/auth/api/v1/**", path)) {
+        if (pathMatcher.match("/auth/api/v1/**", path)
+                || pathMatcher.match("/product/api/v1/product/fetch/all", path)) {
             return chain.filter(exchange);
         }
 
         try {
             String token = TokenUtils.extractToken(exchange);
-            log.debug("Token: {}", token);
             if (token == null) {
                 return unauthorized(exchange, "Authentication token required");
             }
             Claims claims = accessTokenValidator.validateToken(token);
-            log.debug("Claims: {}", claims);
-            String userId = claims.getSubject();
-            Object roleObj = claims.get("role");
-
-            List<String> roles = roleObj == null
-                    ? List.of()
-                    : ((List<?>) roleObj)
-                      .stream()
+            /*
+            List<String> roles = roleObj instanceof List<?> roleList
+                    ? roleList.stream()
                       .map(Object::toString)
-                      .toList();
-            ServerHttpRequest request = exchange.getRequest().mutate()
-                    .header("X-User-Id", sanitize(userId))
-                    .header("X-User-Roles",
-                            roles.stream()
-                                    .map(r -> "ROLE_" + r)
-                                    .collect(Collectors.joining(","))).build();
+                      .toList()
+                    : List.of(); */
+            String correlationID = exchange.getRequest()
+                    .getHeaders()
+                    .getFirst("X-Correlation-ID");
+
+            if (correlationID == null || correlationID.isBlank()) {
+                correlationID = CorrelationIdGenerator.generate();
+            }
+
+            final String finalCorrelationID = correlationID;
+            ServerHttpRequest request = exchange.getRequest()
+                    .mutate()
+                    .headers(headers -> {
+                        headers.remove("X-Correlation-ID");
+                        headers.add("X-Correlation-ID", sanitize(finalCorrelationID));
+                    })
+                    .build();
             return chain.filter(exchange.mutate().request(request).build());
         } catch (Exception e) {
             return unauthorized(exchange, "Invalid or expired token");

@@ -4,8 +4,12 @@ import com.shopease.authentication.dto.VerificationData;
 import com.shopease.authentication.enums.OtpType;
 import com.shopease.authentication.exception.*;
 import com.shopease.authentication.service.OtpGeneration;
+import com.shopease.authentication.service.RefreshTokenService;
 import com.shopease.common.wrapper.PageResponse;
 import com.shopease.redis.service.RedisService;
+import com.shopease.role.entity.Role;
+import com.shopease.role.exception.RoleNotFoundException;
+import com.shopease.role.repository.RoleRepository;
 import com.shopease.user.dto.*;
 import com.shopease.user.entity.User;
 import com.shopease.user.mapper.UserMapper;
@@ -30,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -43,6 +48,8 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final StreamBridge streamBridge;
     private final RedisService redisService;
+    private final RoleRepository roleRepository;
+    private final RefreshTokenService refreshTokenService;
 
     private static UUID getUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -309,5 +316,16 @@ public class UserServiceImpl implements UserService {
                 .last(pages.isLast())
                 .build();
 
+    }
+
+    @Override
+    @Transactional
+    public void updateRole(UUID userId, UUID roleId) {
+        User user = findById(userId);
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RoleNotFoundException("Role with ID " + roleId + " not found"));
+        user.setRoles(Set.of(role));
+        userRepository.save(user);
+        refreshTokenService.revokeAllByUserId(userId);
     }
 }

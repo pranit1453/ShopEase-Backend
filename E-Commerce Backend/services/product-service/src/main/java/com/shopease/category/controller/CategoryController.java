@@ -26,6 +26,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/list/create")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('CATEGORY_WRITE')")
     public ResponseEntity<Set<CreateCategoryResponse>> listOfCreateCategories(@RequestBody @NotEmpty final Set<@Valid CreateCategoryRequest> request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(categoryService.createCategoriesInBulk(request));
@@ -33,37 +34,40 @@ public class CategoryController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('CATEGORY_WRITE')")
     public ResponseEntity<CreateCategoryResponse> createCategory(@RequestBody final @Valid CreateCategoryRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(categoryService.createCategory(request));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<UpdateCategoryResponse> updateCategory(@PathVariable @NotNull final UUID id,
+    @PutMapping("/update/{categoryId}")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('CATEGORY_WRITE') and @categorySecurityService.isCategoryOwner(#categoryId)")
+    public ResponseEntity<UpdateCategoryResponse> updateCategory(@PathVariable @NotNull final UUID categoryId,
                                                                  @RequestBody @Valid final UpdateCategoryRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(categoryService.updateCategoryById(id, request));
+                .body(categoryService.updateCategoryById(categoryId, request));
     }
 
-    @PatchMapping("/patch/{id}")
-    public ResponseEntity<UpdateCategoryResponse> patchCategory(@PathVariable @NotNull final UUID id,
+    @PatchMapping("/patch/{categoryId}")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('CATEGORY_WRITE') and @categorySecurityService.isCategoryOwner(#categoryId)")
+    public ResponseEntity<UpdateCategoryResponse> patchCategory(@PathVariable @NotNull final UUID categoryId,
                                                                 @RequestBody @Valid final UpdateCategoryRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(categoryService.patchCategoryById(id, request));
+                .body(categoryService.patchCategoryById(categoryId, request));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteCategory(@PathVariable @NotNull final UUID id) {
-        categoryService.deleteCategoryById(id);
+    @DeleteMapping("/delete/{categoryId}")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('CATEGORY_DELETE') and @categorySecurityService.isCategoryOwner(#categoryId)")
+    public ResponseEntity<String> deleteCategory(@PathVariable @NotNull final UUID categoryId) {
+        categoryService.deleteCategoryById(categoryId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body("Category with id: " + id + " was deleted successfully");
+                .body("Category with categoryId: " + categoryId + " was deleted successfully");
     }
 
-    @GetMapping("/fetch/{id}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<CategoryResponse> fetchCategory(@PathVariable @NotNull final UUID id) {
+    @GetMapping("/fetch/{categoryId}")
+    public ResponseEntity<CategoryResponse> fetchCategory(@PathVariable @NotNull final UUID categoryId) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(categoryService.fetchCategoryById(id));
+                .body(categoryService.fetchCategoryById(categoryId));
     }
 
     @GetMapping("/fetch/all")

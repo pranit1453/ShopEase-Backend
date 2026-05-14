@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ public class PaymentGatewayController {
     private final GatewayService gatewayService;
 
     @PostMapping("/dummy-gateway/pay")
+    @PreAuthorize("hasRole('USER') and hasAuthority('PAYMENT_WRITE')")
     public ResponseEntity<GatewayResponse> payAmount(@RequestParam @NotBlank String gatewayOrderId) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(gatewayService.completePayment(gatewayOrderId));

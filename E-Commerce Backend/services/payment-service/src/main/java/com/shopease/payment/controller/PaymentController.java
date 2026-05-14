@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,12 +27,14 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/create-payment")
+    @PreAuthorize("hasRole('USER') and hasAuthority('PAYMENT_WRITE')")
     public ResponseEntity<PaymentResponse> createPayment(@RequestBody @Valid PaymentCreateDetails details) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(paymentService.createPaymentAsOrderCreated(details));
     }
 
     @PostMapping("/checkout")
+    @PreAuthorize("hasRole('USER') and hasAuthority('PAYMENT_WRITE')")
     public ResponseEntity<Map<String, String>> initiatePayment(
             @RequestBody @Valid PaymentInitiateRequest request
 
@@ -41,6 +44,7 @@ public class PaymentController {
     }
 
     @PostMapping("/verify")
+    @PreAuthorize("hasRole('USER') and hasAuthority('PAYMENT_WRITE')")
     public ResponseEntity<String> verifyPayment(
             @RequestBody @Valid VerifyPaymentRequest request
     ) {

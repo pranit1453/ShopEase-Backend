@@ -26,4 +26,6 @@ public interface UserService {
 
 
     PageResponse<UserResponse> getAllUsersWithRolesAndPermission(int page, int size, String keyword, String sortBy, String sortDirection);
+
+    void updateRole(UUID userId, UUID roleId);
 }

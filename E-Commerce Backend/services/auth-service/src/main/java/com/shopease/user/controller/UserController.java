@@ -98,4 +98,20 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userService.getAllUsersWithRolesAndPermission(page, size, keyword, sortBy, sortDirection));
     }
+
+    @PutMapping("/{userId}/role/{roleId}")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('ROLE_UPDATE')")
+    public ResponseEntity<String> updateRole(@PathVariable final UUID userId, @PathVariable final UUID roleId) {
+        userService.updateRole(userId, roleId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Role updated successfully");
+    }
+
+//    @PutMapping("/{userId}/role/{roleId}/permissions")
+//    @PreAuthorize("hasRole('ADMIN') and hasAuthority('ROLE_UPDATE')")
+//    public ResponseEntity<String> updateRole(@PathVariable final UUID userId, @PathVariable final UUID roleId, @PathVariable final UUID permissionId) {
+//        userService.updateRermission(userId, roleId, permissionId);
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body("Role updated successfully");
+//    }
 }
