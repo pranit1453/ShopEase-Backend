@@ -18,7 +18,6 @@ public interface AuthService {
 
     void generateNewRefreshToken(String refreshToken, HttpServletResponse response);
 
-    void revokedRefreshToken(String token);
 
     void resendOtpToUser(@Valid String email);
 }

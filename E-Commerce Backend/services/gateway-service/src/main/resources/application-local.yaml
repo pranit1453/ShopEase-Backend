@@ -3,17 +3,14 @@ spring:
     name: gateway-service
   cloud:
     gateway:
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 8s
+
       discovery:
         locator:
           enabled: true
-    discovery:
-      client:
-        health-indicator:
-          enabled: true
-    loadbalancer:
-      cache:
-        enabled: true
-        ttl: 10s
+
   cache:
     type: redis
   data:
@@ -28,9 +25,9 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
     registry-fetch-interval-seconds: 5
-  instance:
-    lease-renewal-interval-in-seconds: 5
-    lease-expiration-duration-in-seconds: 10
+#  instance:
+#    lease-renewal-interval-in-seconds: 30
+#    lease-expiration-duration-in-seconds: 90
 
 management:
   endpoints:
@@ -63,6 +60,10 @@ resilience4j:
         failure-rate-threshold: 50
         wait-duration-in-open-state: 30s
         automatic-transition-from-open-to-half-open-enabled: true
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 8s
 
 #    instances:
 #      circuitBreakerProduct:

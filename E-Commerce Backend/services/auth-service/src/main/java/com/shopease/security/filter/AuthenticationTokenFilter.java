@@ -1,7 +1,9 @@
 package com.shopease.security.filter;
 
+import com.shopease.redis.service.RedisService;
 import com.shopease.security.service.CustomUserDetailService;
 import com.shopease.security.utils.JwtUtil;
+import com.shopease.security.utils.SecurityResponseUtil;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,6 +32,8 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailService userDetailsService;
+    private final RedisService redisService;
+
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
@@ -59,6 +63,16 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
             String jwt = jwtUtil.resolveAccessToken(request);
             if (jwt != null && jwtUtil.isAccessToken(jwt) && jwtUtil.validateAccessToken(jwt)) {
                 UUID userId = UUID.fromString(jwtUtil.getSubjectFromAccessToken(jwt));
+                String ti = jwtUtil.getTiFromAccessToken(jwt);
+                if (!redisService.verifyIdentifier(userId, ti)) {
+                    SecurityResponseUtil.writeUnauthorized(
+                            request,
+                            response,
+                            "Your session is no longer valid. Please log in again."
+                    );
+
+                    return;
+                }
                 UserDetails details = userDetailsService.loadUserByUserId(userId);
                 if (details.isEnabled() && details.isAccountNonLocked()) {
                     UsernamePasswordAuthenticationToken authentication = UsernamePasswordAuthenticationToken.authenticated(

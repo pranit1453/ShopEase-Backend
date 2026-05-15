@@ -1,5 +1,6 @@
 package com.shopease.security.utils;
 
+import com.shopease.redis.service.RedisService;
 import com.shopease.user.entity.User;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.Cookie;
@@ -31,13 +32,15 @@ public class JwtUtil {
     private final String accessTokenCookieName;
     private final PrivateKey privateKey;
     private final PublicKey publicKey;
+    private final RedisService redisService;
 
     public JwtUtil(
             // @Value("${spring.security.secret.key}") String secret,
             @Value("${spring.security.secret.expiration}") long accessTokenExpiration,
             @Value("${spring.security.secret.issuer}") String issuer,
             @Value("${spring.security.refresh.expiration}") long refreshTokenExpiration,
-            @Value("${spring.security.cookie.name.accessTokenName}") String accessTokenCookieName
+            @Value("${spring.security.cookie.name.accessTokenName}") String accessTokenCookieName,
+            RedisService redisService
     ) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         // this.secret = secret;
         this.accessTokenExpiration = accessTokenExpiration;
@@ -46,6 +49,7 @@ public class JwtUtil {
         this.accessTokenCookieName = accessTokenCookieName;
         this.privateKey = KeyUtils.loadPrivateKey("Keys/private_key.pem");
         this.publicKey = KeyUtils.loadPublicKey("Keys/public_key.pem");
+        this.redisService = redisService;
     }
 
     public String generateJti() {
@@ -87,8 +91,9 @@ public class JwtUtil {
     }
 
     public String generateAccessToken(final User user) {
-        // String username = user.getUsername();
+        String ti = generateTokenIdentifier();
         UUID userId = user.getUserId();
+        redisService.addTokenIdentifier(userId, ti);
         Instant now = Instant.now();
         Instant expiry = now.plusSeconds(accessTokenExpiration);
         Set<String> roles = user.getAuthorities()
@@ -113,6 +118,7 @@ public class JwtUtil {
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiry))
                 .claims(Map.of(
+                        "ti", ti,
                         "roles", roles,
                         "permissions", permissions,
                         "token", "access"
@@ -122,7 +128,7 @@ public class JwtUtil {
     }
 
     public String generateRefreshToken(final User user, String jti) {
-        //String username = user.getUsername();
+
         UUID userId = user.getUserId();
         Instant now = Instant.now();
         Instant expiry = now.plusSeconds(refreshTokenExpiration);
@@ -176,6 +182,12 @@ public class JwtUtil {
         return "access".equals(String.valueOf(claims.get("token")));
     }
 
+    public String getTiFromAccessToken(final String token) {
+        Claims claims = parse(token)
+                .getPayload();
+        return String.valueOf(claims.get("ti"));
+    }
+
     public boolean isRefreshToken(final String token) {
         Claims claims = parse(token)
                 .getPayload();
@@ -206,5 +218,12 @@ public class JwtUtil {
         long timestamp = Instant.now().toEpochMilli();
         int random = 1000 + RANDOM.nextInt(9000);
         return userPart + timestamp + random;
+    }
+
+    private String generateTokenIdentifier() {
+        return UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0, 16);
     }
 }

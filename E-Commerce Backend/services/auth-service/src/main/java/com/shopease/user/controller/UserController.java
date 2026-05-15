@@ -1,8 +1,11 @@
 package com.shopease.user.controller;
 
 import com.shopease.common.wrapper.PageResponse;
+import com.shopease.security.service.CookieService;
 import com.shopease.user.dto.*;
 import com.shopease.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +27,8 @@ import java.util.UUID;
 public class UserController {
 
     public final UserService userService;
+    private final CookieService cookieService;
+
 
     @PutMapping("/update/{userId}")
     @PreAuthorize("(hasRole('USER') and @userSecurityService.isUserAuthorized(#userId))")
@@ -105,6 +111,17 @@ public class UserController {
         userService.updateRole(userId, roleId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Role updated successfully");
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logoutUser(HttpServletRequest request, HttpServletResponse response) {
+        userService.readRefreshTokenFromRequest(null, request).ifPresent(userService::revokedRefreshToken);
+        userService.readAccessTokenFromRequest(request).ifPresent(userService::revokedAccessToken);
+        cookieService.clearRefreshTokenCookie(response);
+        cookieService.clearAccessTokenCookie(response);
+        cookieService.addNoStoreHeaders(response);
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 //    @PutMapping("/{userId}/role/{roleId}/permissions")

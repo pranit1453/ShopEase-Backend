@@ -1,8 +1,10 @@
 package com.shopease.user.service;
 
+import com.shopease.authentication.dto.RefreshTokenRequest;
 import com.shopease.authentication.dto.VerificationData;
 import com.shopease.authentication.enums.OtpType;
 import com.shopease.authentication.exception.*;
+import com.shopease.authentication.repository.RefreshTokenRepository;
 import com.shopease.authentication.service.OtpGeneration;
 import com.shopease.authentication.service.RefreshTokenService;
 import com.shopease.common.wrapper.PageResponse;
@@ -10,11 +12,16 @@ import com.shopease.redis.service.RedisService;
 import com.shopease.role.entity.Role;
 import com.shopease.role.exception.RoleNotFoundException;
 import com.shopease.role.repository.RoleRepository;
+import com.shopease.security.service.CookieService;
+import com.shopease.security.utils.JwtUtil;
 import com.shopease.user.dto.*;
 import com.shopease.user.entity.User;
 import com.shopease.user.mapper.UserMapper;
 import com.shopease.user.repository.UserRepository;
 import com.shopease.user.specification.UserSpecification;
+import io.jsonwebtoken.JwtException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +31,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,9 +41,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -50,6 +56,9 @@ public class UserServiceImpl implements UserService {
     private final RedisService redisService;
     private final RoleRepository roleRepository;
     private final RefreshTokenService refreshTokenService;
+    private final JwtUtil jwtUtil;
+    private final CookieService cookieService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     private static UUID getUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -327,5 +336,86 @@ public class UserServiceImpl implements UserService {
         user.setRoles(Set.of(role));
         userRepository.save(user);
         refreshTokenService.revokeAllByUserId(userId);
+        redisService.deleteTokenIdentifier(userId);
+    }
+
+    @Override
+    public Optional<String> readRefreshTokenFromRequest(RefreshTokenRequest body, HttpServletRequest request) {
+        // Prefer reading from cookie
+        if (request.getCookies() != null) {
+            log.info("Reading from Cookies");
+            Optional<String> fromCookie = Arrays.stream(request.getCookies())
+                    .filter(cookie -> cookieService.getRefreshTokenCookieName().equals(cookie.getName()))
+                    .map(Cookie::getValue)
+                    .filter(v -> v != null && !v.isBlank())
+                    .findFirst();
+            if (fromCookie.isPresent()) {
+                return fromCookie;
+            }
+        }
+
+        // From body
+        if (body != null && body.refreshToken() != null && !body.refreshToken().isBlank()) {
+            log.info("Reading from message body");
+            return Optional.of(body.refreshToken());
+        }
+
+        // custom header
+        String refreshHeader = request.getHeader("X-Refresh-Token");
+        if (refreshHeader != null && !refreshHeader.isBlank()) {
+            log.info("Reading from custom header");
+            return Optional.of(refreshHeader.trim());
+        }
+
+        // From Authorization
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            log.info("Reading from Authorization header");
+            String token = authHeader.substring(7).trim();
+            if (!token.isEmpty()) {
+                try {
+                    if (jwtUtil.isRefreshToken(token)) {
+                        return Optional.of(token);
+                    }
+                } catch (Exception e) {
+                    log.error("Invalid refresh token: {}", token);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void revokedRefreshToken(String token) {
+        try {
+            if (jwtUtil.isRefreshToken(token)) {
+                String jti = jwtUtil.getJtiFromRefreshToken(token);
+                refreshTokenRepository.findByJti(jti)
+                        .ifPresent(refreshToken -> {
+                            refreshToken.setRevoked(true);
+                            refreshTokenRepository.save(refreshToken);
+                        });
+            }
+        } catch (JwtException ex) {
+            log.error("Invalid refresh token to revoke: {}", token);
+        }
+    }
+
+    @Override
+    public Optional<String> readAccessTokenFromRequest(HttpServletRequest request) {
+        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if (token != null && token.startsWith("Bearer ")) {
+            return Optional.of(token.substring(7).trim());
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public void revokedAccessToken(String token) {
+        UUID userId = UUID.fromString(jwtUtil.getSubjectFromAccessToken(token));
+        redisService.deleteTokenIdentifier(userId);
     }
 }

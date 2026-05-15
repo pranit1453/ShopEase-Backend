@@ -14,7 +14,6 @@ import com.shopease.security.service.CookieService;
 import com.shopease.security.utils.JwtUtil;
 import com.shopease.user.entity.User;
 import com.shopease.user.repository.UserRepository;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -274,6 +273,7 @@ public class AuthServiceImpl implements AuthService {
         return Optional.empty();
     }
 
+
     @Override
     public void generateNewRefreshToken(String refreshToken, HttpServletResponse response) {
         if (!jwtUtil.isRefreshToken(refreshToken)) {
@@ -324,20 +324,5 @@ public class AuthServiceImpl implements AuthService {
         cookieService.addNoStoreHeaders(response);
     }
 
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void revokedRefreshToken(String token) {
-        try {
-            if (jwtUtil.isRefreshToken(token)) {
-                String jti = jwtUtil.getJtiFromRefreshToken(token);
-                refreshTokenRepository.findByJti(jti)
-                        .ifPresent(refreshToken -> {
-                            refreshToken.setRevoked(true);
-                            refreshTokenRepository.save(refreshToken);
-                        });
-            }
-        } catch (JwtException ex) {
-            log.error("Invalid refresh token to revoke: {}", token);
-        }
-    }
+
 }

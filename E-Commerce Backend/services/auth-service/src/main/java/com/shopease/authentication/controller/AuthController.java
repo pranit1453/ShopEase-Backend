@@ -89,16 +89,6 @@ public class AuthController {
     }
 
 
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logoutUser(HttpServletRequest request, HttpServletResponse response) {
-        authService.readRefreshTokenFromRequest(null, request).ifPresent(authService::revokedRefreshToken);
-        cookieService.clearRefreshTokenCookie(response);
-        cookieService.clearAccessTokenCookie(response);
-        cookieService.addNoStoreHeaders(response);
-        SecurityContextHolder.clearContext();
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
 //    @PreAuthorize("hasRole('USER')")
 //    @PostMapping("/user")
 //    public ResponseEntity<String> forUser() {

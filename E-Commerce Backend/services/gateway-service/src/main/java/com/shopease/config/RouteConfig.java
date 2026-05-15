@@ -54,8 +54,6 @@ public class RouteConfig {
                                         ))
 
                         )
-                        .metadata("response-timeout", 8000)
-                        .metadata("connect-timeout", 5000)
                         .uri("lb://auth-service")
                 )
                 .route(r -> r

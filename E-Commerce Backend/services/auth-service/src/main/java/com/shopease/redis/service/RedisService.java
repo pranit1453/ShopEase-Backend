@@ -159,4 +159,20 @@ public class RedisService {
         ));
     }
 
+    public void addTokenIdentifier(UUID userId, String identifiers) {
+        redisTemplate.opsForValue()
+                .set(
+                        "token:" + userId,
+                        identifiers,
+                        Duration.ofMinutes(5));
+    }
+
+    public void deleteTokenIdentifier(UUID userId) {
+        redisTemplate.delete("token:" + userId);
+    }
+
+    public boolean verifyIdentifier(UUID userId, String identifier) {
+        String value = redisTemplate.opsForValue().get("token:" + userId);
+        return value != null && value.equals(identifier);
+    }
 }
