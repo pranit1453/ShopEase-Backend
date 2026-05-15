@@ -37,13 +37,12 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         return pathMatcher.match("/api/v1/auth/register", path)
+                || pathMatcher.match("/api/v1/auth/admin", path)
                 || pathMatcher.match("/api/v1/auth/login", path)
                 || pathMatcher.match("/api/v1/auth/logout", path)
                 || pathMatcher.match("/api/v1/auth/refresh", path)
                 || pathMatcher.match("/api/v1/auth/verify", path)
                 || pathMatcher.match("/login/**", path)
-                || pathMatcher.match("/api/v1/role/**", path)
-                || pathMatcher.match("/api/v1/permission/**", path)
                 || pathMatcher.match("/login/oauth2/code/google", path)
                 || pathMatcher.match("/login/oauth2/code/github", path)
                 || pathMatcher.match("/oauth2/authorization/google", path)

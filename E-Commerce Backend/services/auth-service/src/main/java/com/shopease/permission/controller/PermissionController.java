@@ -19,14 +19,14 @@ public class PermissionController {
     private final PermissionService permissionService;
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('PERMISSION_CREATE')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> createPermissions(@RequestBody PermissionRequest request) {
         permissionService.createPermission(request);
         return ResponseEntity.ok().body("Permission has been created");
     }
 
     @PutMapping("/update/{permissionId}")
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('PERMISSION_WRITE')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> updatePermission(
             @PathVariable UUID permissionId,
             @RequestBody PermissionRequest request
@@ -36,7 +36,7 @@ public class PermissionController {
     }
 
     @DeleteMapping("/delete/{permissionId}")
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('PERMISSION_DELETE')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deletePermission(
             @PathVariable UUID permissionId
     ) {
@@ -55,7 +55,7 @@ public class PermissionController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('PERMISSION_READ')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PageResponse<PermissionResponse>> getAllPermissions(
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "5") int size,

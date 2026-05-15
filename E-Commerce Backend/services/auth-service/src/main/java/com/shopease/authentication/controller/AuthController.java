@@ -1,17 +1,18 @@
 package com.shopease.authentication.controller;
 
-import com.shopease.authentication.dto.AdminRequest;
-import com.shopease.authentication.dto.AdminResponse;
-import com.shopease.authentication.service.AdminService;
 import com.shopease.authentication.dto.*;
+import com.shopease.authentication.service.AdminService;
 import com.shopease.authentication.service.AuthService;
 import com.shopease.security.service.CookieService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private final AuthService authService;
     private final CookieService cookieService;
     private final AdminService adminService;
@@ -34,12 +36,14 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(authService.registerNewUser(request));
     }
+
     @PostMapping("/admin")
     public ResponseEntity<AdminResponse> onboardAdmin(final @RequestBody AdminRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(adminService.onboardNewAdmin(request));
     }
+
     @PostMapping("/verify")
     public ResponseEntity<String> verifyEmail(@RequestBody final @Valid VerifyRequest request) {
         authService.verifyOtp(request.email(), request.otp());
@@ -62,8 +66,13 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request, HttpServletResponse response) {
+        LoginResponse res = authService.authenticateUser(request, response);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        log.debug("Authorities: {}", auth != null ? auth.getAuthorities() : null);
+        log.debug("Principal: {}", auth != null ? auth.getPrincipal() : null);
+        log.debug("Name: {}", auth != null ? auth.getName() : null);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(authService.authenticateUser(request, response));
+                .body(res);
     }
 
 

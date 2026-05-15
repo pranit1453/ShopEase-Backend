@@ -39,12 +39,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests((req) ->
                         req
                                 .requestMatchers("/api/v1/auth/register").permitAll()
+                                .requestMatchers("/api/v1/auth/admin").permitAll()
                                 .requestMatchers("/api/v1/auth/login").permitAll()
                                 .requestMatchers("/api/v1/auth/logout").permitAll()
                                 .requestMatchers("/api/v1/auth/refresh").permitAll()
                                 .requestMatchers("/api/v1/auth/verify").permitAll()
-                                .requestMatchers("/api/v1/role/**").permitAll()
-                                .requestMatchers("/api/v1/permission/**").permitAll()
                                 .requestMatchers("/login/oauth2/code/google").permitAll()
                                 .requestMatchers("/login/oauth2/code/github").permitAll()
                                 .requestMatchers("/oauth2/authorization/google").permitAll()

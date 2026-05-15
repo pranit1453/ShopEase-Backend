@@ -39,10 +39,6 @@ public class RouteConfig {
                                         .setRateLimiter(redisRateLimiter)
                                         .setKeyResolver(userKeyResolver)
                                         .setStatusCode(HttpStatus.TOO_MANY_REQUESTS))
-                                .requestRateLimiter(config -> config
-                                        .setRateLimiter(redisRateLimiter)
-                                        .setKeyResolver(userKeyResolver)
-                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS))
                                 .circuitBreaker(circuitBreakerConfig -> circuitBreakerConfig
                                         .setName("circuitBreakerAuth")
                                         .setFallbackUri("forward:/circuitBreakerAuth/fallback"))
@@ -58,7 +54,7 @@ public class RouteConfig {
                                         ))
 
                         )
-                        .metadata("response-timeout", 2000)
+                        .metadata("response-timeout", 8000)
                         .metadata("connect-timeout", 5000)
                         .uri("lb://auth-service")
                 )
@@ -85,7 +81,7 @@ public class RouteConfig {
                                                 true
                                         ))
                         )
-                        .metadata("response-timeout", 2000)
+                        .metadata("response-timeout", 8000)
                         .metadata("connect-timeout", 5000)
                         .uri("lb://product-service")
                 )
@@ -112,7 +108,7 @@ public class RouteConfig {
                                                 true
                                         ))
                         )
-                        .metadata("response-timeout", 2000)
+                        .metadata("response-timeout", 8000)
                         .metadata("connect-timeout", 5000)
                         .uri("lb://inventory-service")
                 )
@@ -139,7 +135,7 @@ public class RouteConfig {
                                                 true
                                         ))
                         )
-                        .metadata("response-timeout", 2000)
+                        .metadata("response-timeout", 8000)
                         .metadata("connect-timeout", 5000)
                         .uri("lb://order-service")
                 )
@@ -166,7 +162,7 @@ public class RouteConfig {
                                                 true
                                         ))
                         )
-                        .metadata("response-timeout", 2000)
+                        .metadata("response-timeout", 8000)
                         .metadata("connect-timeout", 5000)
                         .uri("lb://notification-service")
                 )
@@ -193,7 +189,7 @@ public class RouteConfig {
                                                 true
                                         ))
                         )
-                        .metadata("response-timeout", 2000)
+                        .metadata("response-timeout", 8000)
                         .metadata("connect-timeout", 5000)
                         .uri("lb://payment-service")
                 )

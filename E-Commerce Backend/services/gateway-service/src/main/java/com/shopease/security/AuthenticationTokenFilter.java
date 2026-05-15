@@ -35,7 +35,7 @@ public class AuthenticationTokenFilter implements GlobalFilter, Ordered {
                              GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
         // allow auth endpoints
-        if (pathMatcher.match("/auth/api/v1/**", path)
+        if (pathMatcher.match("/auth/api/v1/auth/**", path)
                 || pathMatcher.match("/product/api/v1/product/fetch/all", path)) {
             return chain.filter(exchange);
         }
