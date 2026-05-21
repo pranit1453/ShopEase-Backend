@@ -25,9 +25,6 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
     registry-fetch-interval-seconds: 5
-#  instance:
-#    lease-renewal-interval-in-seconds: 30
-#    lease-expiration-duration-in-seconds: 90
 
 management:
   endpoints:
@@ -65,9 +62,29 @@ resilience4j:
       default:
         timeout-duration: 8s
 
-#    instances:
-#      circuitBreakerProduct:
-#        base-config: default
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+
+      - name: auth-service
+        url: /auth/v3/api-docs
+
+      - name: product-service
+        url: /product/v3/api-docs
+
+      - name: inventory-service
+        url: /inventory/v3/api-docs
+
+      - name: order-service
+        url: /order/v3/api-docs
+
+      - name: payment-service
+        url: /payment/v3/api-docs
+
+      - name: notification-service
+        url: /notification/v3/api-docs
 
 logging:
   level:

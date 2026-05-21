@@ -6,6 +6,7 @@ import com.shopease.role.dto.RoleWithPermissionRequest;
 import com.shopease.role.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,12 +20,14 @@ public class RoleController {
     private final RoleService roleService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN') and hasPermission('ROLE_WRITE')")
     public ResponseEntity<String> createNewRole(@RequestBody RoleRequest request) {
         roleService.createNewRole(request);
         return ResponseEntity.ok().body("Role created successfully");
     }
 
     @PutMapping("/update/{roleId}")
+    @PreAuthorize("hasRole('ADMIN') and hasPermission('ROLE_WRITE')")
     public ResponseEntity<String> updateRole(
             @PathVariable UUID roleId,
             @RequestBody RoleRequest request
@@ -34,6 +37,7 @@ public class RoleController {
     }
 
     @DeleteMapping("/delete/{roleId}")
+    @PreAuthorize("hasRole('ADMIN') and hasPermission('ROLE_DELETE')")
     public ResponseEntity<String> deleteRole(
             @PathVariable UUID roleId
     ) {
@@ -42,6 +46,7 @@ public class RoleController {
     }
 
     @GetMapping("/{roleId}")
+    @PreAuthorize("hasRole('ADMIN') and hasPermission('ROLE_READ')")
     public ResponseEntity<RoleResponse> getRole(
             @PathVariable UUID roleId
     ) {
@@ -51,6 +56,7 @@ public class RoleController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN') and hasPermission('ROLE_READ')")
     public ResponseEntity<List<RoleResponse>> getAllRoles() {
         return ResponseEntity.ok(
                 roleService.getAllRoles()
@@ -58,6 +64,7 @@ public class RoleController {
     }
 
     @PostMapping("/assign/{roleId}/permission")
+    @PreAuthorize("hasRole('ADMIN') and hasPermission('ROLE_WRITE')")
     public ResponseEntity<String> attachPermissionToRole(
             @PathVariable UUID roleId,
             @RequestBody RoleWithPermissionRequest request) {

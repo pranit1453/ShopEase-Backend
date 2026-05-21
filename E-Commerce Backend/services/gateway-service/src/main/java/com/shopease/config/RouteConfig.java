@@ -79,8 +79,6 @@ public class RouteConfig {
                                                 true
                                         ))
                         )
-                        .metadata("response-timeout", 8000)
-                        .metadata("connect-timeout", 5000)
                         .uri("lb://product-service")
                 )
                 .route(r -> r
@@ -106,8 +104,6 @@ public class RouteConfig {
                                                 true
                                         ))
                         )
-                        .metadata("response-timeout", 8000)
-                        .metadata("connect-timeout", 5000)
                         .uri("lb://inventory-service")
                 )
                 .route(r -> r
@@ -133,8 +129,6 @@ public class RouteConfig {
                                                 true
                                         ))
                         )
-                        .metadata("response-timeout", 8000)
-                        .metadata("connect-timeout", 5000)
                         .uri("lb://order-service")
                 )
                 .route(r -> r
@@ -160,8 +154,6 @@ public class RouteConfig {
                                                 true
                                         ))
                         )
-                        .metadata("response-timeout", 8000)
-                        .metadata("connect-timeout", 5000)
                         .uri("lb://notification-service")
                 )
                 .route(r -> r
@@ -187,8 +179,6 @@ public class RouteConfig {
                                                 true
                                         ))
                         )
-                        .metadata("response-timeout", 8000)
-                        .metadata("connect-timeout", 5000)
                         .uri("lb://payment-service")
                 )
                 .build();

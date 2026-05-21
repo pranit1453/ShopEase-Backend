@@ -39,4 +39,6 @@ public interface UserService {
     Optional<String> readAccessTokenFromRequest(HttpServletRequest request);
 
     void revokedAccessToken(String token);
+
+    UserResponse getUserWithRolesAndPermission();
 }

@@ -12,3 +12,7 @@ Verification:
 Success: user enabled Redis cleaned
 
 docker run --name my-redis -d -p 6379:6379 redis
+
+Distributaion transaction implemation ways
+stratergy pattern
+// circuit breaker exception handle flow for each servies like databse, email

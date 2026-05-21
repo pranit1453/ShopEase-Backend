@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
@@ -44,7 +45,7 @@ public class AuthController {
                 .body(adminService.onboardNewAdmin(request));
     }
 
-    @PostMapping("/verify")
+    @PostMapping("/verify-email")
     public ResponseEntity<String> verifyEmail(@RequestBody final @Valid VerifyRequest request) {
         authService.verifyOtp(request.email(), request.otp());
         return ResponseEntity.status(HttpStatus.OK)
@@ -77,6 +78,7 @@ public class AuthController {
 
 
     @PostMapping("/refresh")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Boolean> refreshAccessToken(
             @RequestBody(required = false) RefreshTokenRequest body,
             HttpServletResponse response,
@@ -88,16 +90,4 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(true);
     }
 
-
-//    @PreAuthorize("hasRole('USER')")
-//    @PostMapping("/user")
-//    public ResponseEntity<String> forUser() {
-//        return ResponseEntity.ok("User Calling.......");
-//    }
-//
-//    @PreAuthorize("hasRole('ADMIN')")
-//    @PostMapping("/admin")
-//    public ResponseEntity<String> forAdmin() {
-//        return ResponseEntity.ok("Admin Calling.......");
-//    }
 }

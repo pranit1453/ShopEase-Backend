@@ -1,10 +1,11 @@
-package com.shopease.gateway.exception;
+package com.shopease.exception;
 
 import com.shopease.common.exception.BaseException;
 import com.shopease.common.wrapper.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -30,6 +31,17 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.builder()
                         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                         .message("Something went wrong")
+                        .path(request.getRequestURI())
+                        .timestamp(Instant.now())
+                        .build());
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorizationAccess(AuthorizationDeniedException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.builder()
+                        .status(HttpStatus.UNAUTHORIZED.value())
+                        .message("Access Denied: You are not Authorized to perform this operation.")
                         .path(request.getRequestURI())
                         .timestamp(Instant.now())
                         .build());

@@ -3,11 +3,13 @@ package com.shopease.order.service;
 import com.shopease.order.client.InventoryClient;
 import com.shopease.order.client.PaymentClient;
 import com.shopease.order.client.ProductClient;
-import com.shopease.common.order.dto.*;
 import com.shopease.order.dto.*;
 import com.shopease.order.entity.Order;
 import com.shopease.order.entity.OrderItem;
 import com.shopease.order.enums.OrderStatus;
+import com.shopease.order.exception.OrderNotFoundException;
+import com.shopease.order.exception.ProductNotFoundException;
+import com.shopease.order.exception.StockNotAvailableException;
 import com.shopease.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.stream.function.StreamBridge;
@@ -63,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
 
         for (Map.Entry<UUID, Boolean> entry : stockResult.entrySet()) {
             if (!entry.getValue()) {
-                throw new RuntimeException("Stock not available for product " + entry.getKey());
+                throw new StockNotAvailableException("Stock not available for product " + entry.getKey());
             }
         }
 
@@ -83,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
                 ProductResponse product = productMap.get(item.productId());
 
                 if (product == null) {
-                    throw new RuntimeException("Product not found: " + item.productId());
+                    throw new ProductNotFoundException("Product not found: " + item.productId());
                 }
 
                 BigDecimal price = product.price();
@@ -147,7 +149,7 @@ public class OrderServiceImpl implements OrderService {
                                 orderRepository.save(order);
                             }
                         }, () -> {
-                            throw new RuntimeException("Order Not Found Yet with Order Id: " + res.orderId());
+                            throw new OrderNotFoundException("Order Not Found Yet with Order Id: " + res.orderId());
                         });
 
             }
@@ -220,7 +222,7 @@ public class OrderServiceImpl implements OrderService {
                         orderRepository.save(order);
                     }
                 }, () -> {
-                    throw new RuntimeException("Order Not Found Yet with Order Id: " + request.orderId());
+                    throw new OrderNotFoundException("Order Not Found Yet with Order Id: " + request.orderId());
                 });
 
         notifyUserAboutOrder(request);

@@ -22,14 +22,14 @@ spring:
 signature:
   key: i4tfI66PYK9wEcfrvxq6jLozkksK5YBt+i7u0w14xF4=
 
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka
+#eureka:
+#  instance:
+#    prefer-ip-address: true
+#  client:
+#    fetch-registry: true
+#    register-with-eureka: true
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka
 
 management:
   endpoints:

@@ -2,8 +2,8 @@ package com.shopease.gateway.service;
 
 import com.shopease.gateway.dto.GatewayResponse;
 import com.shopease.gateway.enums.GatewayOrderStatus;
-import com.shopease.gateway.exception.custom.InvalidGatewayOrderException;
-import com.shopease.gateway.exception.custom.PaymentDoneException;
+import com.shopease.gateway.exception.InvalidGatewayOrderException;
+import com.shopease.gateway.exception.PaymentDoneException;
 import com.shopease.gateway.model.GatewayOrder;
 import com.shopease.gateway.store.DummyGatewayStore;
 import com.shopease.gateway.store.FileStore;

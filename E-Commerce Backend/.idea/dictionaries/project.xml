@@ -3,6 +3,8 @@
     <words>
       <w>jdbc</w>
       <w>rabbitmq</w>
+      <w>springdoc</w>
+      <w>urls</w>
     </words>
   </dictionary>
 </component>

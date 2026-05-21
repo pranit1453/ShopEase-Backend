@@ -417,5 +417,15 @@ public class UserServiceImpl implements UserService {
     public void revokedAccessToken(String token) {
         UUID userId = UUID.fromString(jwtUtil.getSubjectFromAccessToken(token));
         redisService.deleteTokenIdentifier(userId);
+        refreshTokenRepository.revokeAllByUserId(userId);
+    }
+
+    @Override
+    @Transactional
+    public UserResponse getUserWithRolesAndPermission() {
+        UUID userId = getUserId();
+        log.debug("User ID from Security Context: {}", userId);
+        User user = findById(userId);
+        return userMapper.toResponse(user);
     }
 }

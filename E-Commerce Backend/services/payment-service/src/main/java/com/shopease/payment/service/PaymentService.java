@@ -10,10 +10,10 @@ import com.shopease.payment.enums.GatewayName;
 import com.shopease.payment.enums.GatewayStatus;
 import com.shopease.payment.enums.PaymentMethod;
 import com.shopease.payment.enums.PaymentStatus;
-import com.shopease.payment.exception.custom.InvalidPaymentDetailsException;
-import com.shopease.payment.exception.custom.InvalidSignatureException;
-import com.shopease.payment.exception.custom.PaymentInitiationFailedException;
-import com.shopease.payment.exception.custom.PaymentNotFoundException;
+import com.shopease.payment.exception.InvalidPaymentDetailsException;
+import com.shopease.payment.exception.InvalidSignatureException;
+import com.shopease.payment.exception.PaymentInitiationFailedException;
+import com.shopease.payment.exception.PaymentNotFoundException;
 import com.shopease.payment.factory.PaymentGatewayFactory;
 import com.shopease.payment.repository.PaymentRepository;
 import com.shopease.util.HmacUtil;
@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,6 +35,7 @@ public class PaymentService {
     private final PaymentGatewayFactory paymentGatewayFactory;
     private final HmacUtil hmacUtil;
     private final OrderClient orderClient;
+    private final PdfService pdfService;
 
     public Map<String, String> initiatePaymentWithGateway(PaymentInitiateRequest request) {
         log.info("Initiating payment. paymentId: {}, gateway: {}, service: {}",
@@ -128,8 +130,17 @@ public class PaymentService {
                 .grandTotal(payment.getAmount())
                 .build();
         log.info("Updating order status after payment success. orderId: {}", payment.getOrderId());
-
+        InvoiceDto data = InvoiceDto.builder()
+                .invoiceNumber(UUID.randomUUID().toString())
+                .customerId(payment.getUserId().toString())
+                .paymentId(payment.getPaymentId().toString())
+                .email("pranitbhangale14@gmail.com")
+                .amount(payment.getAmount())
+                .paymentDate(LocalDate.now())
+                .build();
+        //pdfService.generateInvoice(data);
         orderClient.changeStatusOfOrder(orderDetail);
+
     }
 
     public PaymentResponse createPaymentAsOrderCreated(@Valid PaymentCreateDetails detail) {

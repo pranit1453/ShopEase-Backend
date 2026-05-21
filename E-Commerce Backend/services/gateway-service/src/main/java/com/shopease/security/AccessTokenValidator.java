@@ -18,7 +18,7 @@ public class AccessTokenValidator {
         this.issuer = issuer;
     }
 
-    public Claims validateToken(final String token) {
+    public void validateToken(final String token) {
         try {
             Claims claims = Jwts.parser()
                     .verifyWith(publicKey)
@@ -33,9 +33,6 @@ public class AccessTokenValidator {
             if (!"access".equals(String.valueOf(claims.get("token")))) {
                 throw new RuntimeException("Invalid token type");
             }
-
-            return claims;
-
         } catch (Exception e) {
             throw new RuntimeException("JWT validation failed: " + e.getMessage(), e);
         }

@@ -1,6 +1,7 @@
 package com.shopease.common.security.config;
 
 import com.shopease.common.security.endpoints.PublicEndpointProvider;
+import com.shopease.common.security.filter.CorrelationIdFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Slf4j
 @Configuration
@@ -19,8 +21,8 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(final HttpSecurity http,
-                                    final PublicEndpointProvider publicEndpointProvider)
-            throws Exception {
+                                    final PublicEndpointProvider publicEndpointProvider,
+                                    final CorrelationIdFilter correlationIdFilter) {
         log.info("Common Security Configuration");
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -38,6 +40,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(Customizer.withDefaults()))
+                .addFilterBefore(correlationIdFilter, UsernamePasswordAuthenticationFilter.class)
         ;
         return http.build();
     }

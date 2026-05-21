@@ -1,5 +1,10 @@
 package com.shopease.user.controller;
 
+import com.shopease.authentication.dto.AssignPermissionRequest;
+import com.shopease.authentication.dto.AssignRoleRequest;
+import com.shopease.authentication.dto.RevokePermissionRequest;
+import com.shopease.authentication.dto.RevokeRoleRequest;
+import com.shopease.authentication.service.AdminService;
 import com.shopease.common.wrapper.PageResponse;
 import com.shopease.security.service.CookieService;
 import com.shopease.user.dto.*;
@@ -28,7 +33,7 @@ public class UserController {
 
     public final UserService userService;
     private final CookieService cookieService;
-
+    private final AdminService adminService;
 
     @PutMapping("/update/{userId}")
     @PreAuthorize("(hasRole('USER') and @userSecurityService.isUserAuthorized(#userId))")
@@ -61,7 +66,7 @@ public class UserController {
                 .body("Otp has been sent");
     }
 
-    @PostMapping("/otp/verify")
+    @PostMapping("/verify-otp")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> verifyOtpForPassword(@RequestBody final @Valid VerifyPasswordRequest request) {
         userService.verifyPasswordChangeOtp(request);
@@ -69,7 +74,7 @@ public class UserController {
                 .body("Otp has been verified");
     }
 
-    @PostMapping("/confirm/password")
+    @PostMapping("/confirm-password")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> updatePassword(@RequestBody final @Valid PasswordRequest request) {
         userService.confirmPasswordChange(request);
@@ -77,7 +82,7 @@ public class UserController {
                 .body("Password updated successfully");
     }
 
-    @PostMapping("/update/email")
+    @PostMapping("/update-email")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> updateEmail(@RequestBody final @Valid EmailRequest request) {
         userService.requestEmailChangeOtp(request);
@@ -85,7 +90,7 @@ public class UserController {
                 .body("Check Email for OTP");
     }
 
-    @PostMapping("/email/verify")
+    @PostMapping("/verify-email")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> verifyOtpForEmail(@RequestBody final @Valid NewEmailRequest request) {
         userService.verifyEmailChangeOtp(request);
@@ -94,6 +99,7 @@ public class UserController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('USER_READ')")
     public ResponseEntity<PageResponse<UserResponse>> fetchAllUserData(
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "5") int size,
@@ -105,8 +111,15 @@ public class UserController {
                 .body(userService.getAllUsersWithRolesAndPermission(page, size, keyword, sortBy, sortDirection));
     }
 
+    @GetMapping("/user-information")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') and hasAuthority('USER_READ')")
+    public ResponseEntity<UserResponse> getUserData() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.getUserWithRolesAndPermission());
+    }
+
     @PutMapping("/{userId}/role/{roleId}")
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('ROLE_UPDATE')")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('ROLE_WRITE')")
     public ResponseEntity<String> updateRole(@PathVariable final UUID userId, @PathVariable final UUID roleId) {
         userService.updateRole(userId, roleId);
         return ResponseEntity.status(HttpStatus.OK)
@@ -114,6 +127,7 @@ public class UserController {
     }
 
     @PostMapping("/logout")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Void> logoutUser(HttpServletRequest request, HttpServletResponse response) {
         userService.readRefreshTokenFromRequest(null, request).ifPresent(userService::revokedRefreshToken);
         userService.readAccessTokenFromRequest(request).ifPresent(userService::revokedAccessToken);
@@ -124,11 +138,61 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-//    @PutMapping("/{userId}/role/{roleId}/permissions")
-//    @PreAuthorize("hasRole('ADMIN') and hasAuthority('ROLE_UPDATE')")
-//    public ResponseEntity<String> updateRole(@PathVariable final UUID userId, @PathVariable final UUID roleId, @PathVariable final UUID permissionId) {
-//        userService.updateRermission(userId, roleId, permissionId);
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body("Role updated successfully");
-//    }
+    @PostMapping("/users/{userId}/assign")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('ROLE_WRITE')")
+    public ResponseEntity<String> assignRoleToUser(
+            @PathVariable UUID userId,
+            @Valid @RequestBody AssignRoleRequest request
+    ) {
+        adminService.assignedNewRoleToUser(userId, request);
+        return ResponseEntity.ok("Role assigned successfully");
+    }
+
+    @PostMapping("/{roleId}/permissions/assign")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('PERMISSION_WRITE')")
+    public ResponseEntity<String> assignPermissionToRole(
+            @PathVariable UUID roleId,
+            @Valid @RequestBody AssignPermissionRequest request
+    ) {
+        adminService.assignPermissionToRole(roleId, request);
+        return ResponseEntity.ok("Permissions assigned successfully");
+    }
+
+    @DeleteMapping("/{userId}/permissions/revoke")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('PERMISSION_DELETE')")
+    public ResponseEntity<String> revokePermissionAssociatedToUser(
+            @PathVariable UUID userId,
+            @Valid @RequestBody RevokePermissionRequest request
+    ) {
+
+        adminService.revokePermissionAssociatedToUser(userId, request);
+
+        return ResponseEntity.ok(
+                "Permissions revoked successfully from user roles"
+        );
+    }
+
+    @PostMapping("/{userId}/roles/revoke")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('ROLE_DELETE')")
+    public ResponseEntity<Void> revokeRoleAssociatedToUser(
+            @PathVariable UUID userId,
+            @RequestBody RevokeRoleRequest request
+    ) {
+
+        adminService.revokeRoleAssociatedToUser(userId, request);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{userId}/permissions/assign")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('PERMISSION_WRITE')")
+    public ResponseEntity<Void> assignPermissionToUser(
+            @PathVariable UUID userId,
+            @RequestBody AssignPermissionRequest request
+    ) {
+
+        adminService.assignPermissionToUser(userId, request);
+
+        return ResponseEntity.noContent().build();
+    }
 }

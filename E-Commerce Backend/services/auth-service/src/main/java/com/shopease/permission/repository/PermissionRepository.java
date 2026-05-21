@@ -20,4 +20,6 @@ public interface PermissionRepository extends JpaRepository<Permission, UUID>, J
 
 
     List<Permission> findAllByPermissionIdIn(Set<UUID> uuids);
+
+    List<Permission> findByPermissionCodeIn(List<String> permissionCode);
 }

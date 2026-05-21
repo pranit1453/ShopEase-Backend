@@ -2,9 +2,11 @@ package com.shopease.exception;
 
 import com.shopease.common.exception.BaseException;
 import com.shopease.common.wrapper.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,20 +17,19 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(com.shopease.common.exception.BaseException.class)
-    public ResponseEntity<ErrorResponse<Object>> handleBaseException(BaseException ex) {
-        return ResponseEntity
-                .status(ex.getStatus())
+    @ExceptionHandler(BaseException.class)
+    public ResponseEntity<ErrorResponse> handleBaseException(BaseException ex, HttpServletRequest request) {
+        return ResponseEntity.status(ex.getStatus())
                 .body(ErrorResponse.builder()
-                        .status(false)
+                        .status(ex.getStatus().value())
                         .message(ex.getMessage())
-                        .data(null)
+                        .path(request.getRequestURI())
                         .timestamp(Instant.now())
                         .build());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse<Object>> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors()
                 .stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
@@ -36,15 +37,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse.builder()
-                        .status(false)
+                        .status(HttpStatus.BAD_REQUEST.value())
                         .message(message)
-                        .data(null)
                         .timestamp(Instant.now())
                         .build());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse<Object>> handleDataIntegrity(DataIntegrityViolationException ex) {
+    public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex) {
 
         String message = "Data integrity violation. Please ensure the request is valid.";
 
@@ -68,21 +68,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(ErrorResponse.builder()
-                        .status(false)
+                        .status(HttpStatus.CONFLICT.value())
                         .message(message)
-                        .data(null)
+                        .timestamp(Instant.now())
+                        .build());
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorizationAccess(AuthorizationDeniedException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.builder()
+                        .status(HttpStatus.UNAUTHORIZED.value())
+                        .message("Access Denied: You are not Authorized to perform this operation.")
+                        .path(request.getRequestURI())
                         .timestamp(Instant.now())
                         .build());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse<Object>> handleException(Exception ex) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.builder()
-                        .status(false)
-                        .message(ex.getMessage())
-                        .data(null)
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .message("Something went wrong")
+                        .path(request.getRequestURI())
                         .timestamp(Instant.now())
                         .build());
     }
