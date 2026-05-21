@@ -1,0 +1,14 @@
+rootProject.name = 'ecommerce-backend'
+
+include 'library:common-starter'
+include 'library:common-security'
+
+include 'services:auth-service'
+include 'services:gateway-service'
+include 'services:inventory-service'
+include 'services:service-registry'
+include 'services:product-service'
+include 'services:order-service'
+include 'services:payment-service'
+include 'services:notification-service'
+
