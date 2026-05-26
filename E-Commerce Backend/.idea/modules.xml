@@ -2,11 +2,24 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/E-Commerce Backend.iml" filepath="$PROJECT_DIR$/.idea/E-Commerce Backend.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-service.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/common-security.main.iml" filepath="$PROJECT_DIR$/.idea/modules/common-security.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/common-starter.main.iml" filepath="$PROJECT_DIR$/.idea/modules/common-starter.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/library/common-security/ecommerce-backend.library.common-security.main.iml" filepath="$PROJECT_DIR$/.idea/modules/library/common-security/ecommerce-backend.library.common-security.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/library/common-starter/ecommerce-backend.library.common-starter.main.iml" filepath="$PROJECT_DIR$/.idea/modules/library/common-starter/ecommerce-backend.library.common-starter.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/services/auth-service/ecommerce-backend.services.auth-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/services/auth-service/ecommerce-backend.services.auth-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/services/auth-service/ecommerce-backend.services.auth-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/services/auth-service/ecommerce-backend.services.auth-service.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/services/gateway-service/ecommerce-backend.services.gateway-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/services/gateway-service/ecommerce-backend.services.gateway-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/services/inventory-service/ecommerce-backend.services.inventory-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/services/inventory-service/ecommerce-backend.services.inventory-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/services/inventory-service/ecommerce-backend.services.inventory-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/services/inventory-service/ecommerce-backend.services.inventory-service.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/services/notification-service/ecommerce-backend.services.notification-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/services/notification-service/ecommerce-backend.services.notification-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/services/notification-service/ecommerce-backend.services.notification-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/services/notification-service/ecommerce-backend.services.notification-service.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/services/order-service/ecommerce-backend.services.order-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/services/order-service/ecommerce-backend.services.order-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/services/order-service/ecommerce-backend.services.order-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/services/order-service/ecommerce-backend.services.order-service.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/services/payment-service/ecommerce-backend.services.payment-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/services/payment-service/ecommerce-backend.services.payment-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/services/payment-service/ecommerce-backend.services.payment-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/services/payment-service/ecommerce-backend.services.payment-service.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/services/product-service/ecommerce-backend.services.product-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/services/product-service/ecommerce-backend.services.product-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gateway-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/gateway-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/inventory-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/inventory-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/inventory-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/inventory-service.test.iml" />

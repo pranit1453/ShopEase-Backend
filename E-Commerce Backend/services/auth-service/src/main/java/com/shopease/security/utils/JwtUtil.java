@@ -65,8 +65,8 @@ public class JwtUtil {
         if (headerToken != null && !headerToken.isBlank()) {
             return headerToken;
         }
-//        return getAccessTokenFromCookie(request);
-        return null;
+       return getAccessTokenFromCookie(request);
+//        return null;
     }
 
     public String getAccessTokenFromHeader(final HttpServletRequest request) {

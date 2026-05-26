@@ -64,7 +64,7 @@ spring:
       cookieHttpOnly: true
       cookieSecure: false
       cookieSameSite: lax
-      cookieDomain: localhost
+      cookieDomain: ""
 
     oauth2:
       client:

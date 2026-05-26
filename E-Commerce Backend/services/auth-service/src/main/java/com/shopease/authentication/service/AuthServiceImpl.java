@@ -213,9 +213,9 @@ public class AuthServiceImpl implements AuthService {
         log.debug("Access token: {}", accessToken);
         String refreshToken = jwtUtil.generateRefreshToken(user, jti);
         log.debug("Refresh token: {}", refreshToken);
-        cookieService.attachAccessTokenCookie(response, accessToken, Duration.ofSeconds(jwtUtil.getAccessTokenExpiration()));
-        cookieService.attachRefreshCookie(response, refreshToken, Duration.ofSeconds(jwtUtil.getRefreshTokenExpiration()));
-        cookieService.addNoStoreHeaders(response);
+//        cookieService.attachAccessTokenCookie(response, accessToken, Duration.ofSeconds(jwtUtil.getAccessTokenExpiration()));
+//        cookieService.attachRefreshCookie(response, refreshToken, Duration.ofSeconds(jwtUtil.getRefreshTokenExpiration()));
+//        cookieService.addNoStoreHeaders(response);
         List<String> roles = user.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
@@ -223,6 +223,8 @@ public class AuthServiceImpl implements AuthService {
         log.debug("Roles are: {}", roles);
         return LoginResponse.builder()
                 .username(user.getUsername())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .roles(roles)
                 .build();
     }

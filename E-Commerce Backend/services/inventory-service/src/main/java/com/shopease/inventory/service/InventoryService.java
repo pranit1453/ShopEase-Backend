@@ -1,6 +1,5 @@
 package com.shopease.inventory.service;
 
-import com.shopease.common.inventory.dto.*;
 import com.shopease.inventory.dto.*;
 import com.shopease.inventory.enums.InventorySortField;
 import com.shopease.common.wrapper.PageResponse;

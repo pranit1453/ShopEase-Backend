@@ -2,7 +2,6 @@ package com.shopease.inventory.service;
 
 import com.shopease.client.ProductClient;
 import com.shopease.exception.custom.ResourceNotFoundException;
-import com.shopease.common.inventory.dto.*;
 import com.shopease.inventory.dto.*;
 import com.shopease.inventory.entity.Inventory;
 import com.shopease.inventory.enums.InventorySortField;
