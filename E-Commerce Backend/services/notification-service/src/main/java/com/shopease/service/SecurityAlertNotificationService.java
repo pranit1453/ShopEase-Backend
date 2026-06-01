@@ -14,7 +14,7 @@ public class SecurityAlertNotificationService {
     private final EmailService emailService;
 
     @Bean
-    public Consumer<EmailData> emailChangeSecurityAlert() {
+        public Consumer<EmailData> emailChangeSecurityAlert() {
         return (this::handleEmailChangeAlert);
     }
 
